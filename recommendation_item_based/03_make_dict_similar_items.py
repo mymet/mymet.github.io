@@ -49,7 +49,12 @@ def calculateSimilarItems(prefs, n = 10):
       scores = topMatches(prefs, item, n = n, similarity = sim_distance)
       # result[item] = scores
 
-      new_item = {item: scores}
+      # Maybe there are not 10 similar items.
+      # This function makes sure we grab only items with similarity > 0
+      filtered_results = [ scores[i]
+                           for i in range(len(scores)) if scores[i][0] > 0]
+
+      new_item = {item: filtered_results}
       print(new_item)
 
       # Saving object to a json file

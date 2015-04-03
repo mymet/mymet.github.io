@@ -38,7 +38,7 @@ def sim_pearson(prefs, person1, person2):
 	# Sum up the products
 	pSum = sum( [ prefs[person1][item]*prefs[person2][item] for item in si ] )
 
-	# Calculate Pearson scroe
+	# Calculate Pearson score
 	num = pSum - (sum1*sum2/n)
 	den=sqrt((sum1Sq-pow(sum1,2)/n)*(sum2Sq-pow(sum2,2)/n))
 	if den == 0: return 0
@@ -70,7 +70,6 @@ def sim_distance(prefs, person1, person2):
 	
 	sum_of_squares = sum( [ pow( prefs[person1][item] - prefs[person2][item], 2 ) 
 							for item in prefs[person1] if item in prefs[person2]] )
-
 
 	# Similarity is inversely proportional to distance.
 	# This will reverse the result and map it to a 0-1 range.
