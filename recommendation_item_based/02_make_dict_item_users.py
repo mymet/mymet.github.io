@@ -20,4 +20,4 @@ jsonFile = open("../data/item_preferences.json", "w")
 jsonFile.write(json.dumps(itemPrefs, indent=4, sort_keys=True))
 jsonFile.close()
 
-print('Successfully saved data to ../data/item_preferences.json.json')
+print('Successfully saved data to ../data/item_preferences.json')
