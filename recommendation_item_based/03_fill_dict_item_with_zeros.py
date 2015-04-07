@@ -1,3 +1,6 @@
+import bson
+from bson.objectid import ObjectId
+
 import pymongo
 from pymongo import MongoClient
 client = MongoClient('localhost', 27017)
@@ -16,19 +19,22 @@ print("Found " + str(len(user_dict)) + " unique users.")
 items_collection = db['users_by_item']
 item_dict = {}
 
-# Loading the records from mongoDB
+# print(items_collection.find_one({'_id': ObjectId('552456e98c51d00c433a2f18')}))
+
+# # Loading the records from mongoDB
 for record in items_collection.find():
 	id = record['_id']
 	key = record['item'].keys()[0]
 	value = record['item'][key]
 	print(id)
-	print(len(value))
-	print(len(user_dict))
+	print(key)
+	# print(len(value))
+	# print(len(user_dict))
 	print("\n")
-	# print(items_collection.find_one({'_id': id}))
 
 	# We need as many elements as users inside each object
 	if len(value) < len(user_dict):
+		print("UPDATING ITEM")
 
 		new_item = value
 
@@ -40,7 +46,7 @@ for record in items_collection.find():
 				# print("Added " + user + " to " + item)
 		# print(new_item)
 		# print(len(new_item))
-		items_collection.update({'_id': id}, { '$set': {'item': {key: new_item}} }, upsert=False)
+		items_collection.update({'_id': ObjectId(id)}, { '$set': {'item': {key: new_item}} }, upsert=False)
 		print("Updated")		
 		# print(items_collection.find_one({'_id': id}))
 		print("************************************************")
