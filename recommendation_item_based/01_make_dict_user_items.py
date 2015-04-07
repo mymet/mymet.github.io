@@ -1,6 +1,11 @@
 # Loading the python csv module
 import csv
-import json
+import pymongo
+from pymongo import MongoClient
+client = MongoClient('localhost', 27017)
+db = client['met']
+collection = db['items_by_user']
+# print(collection)
 
 # Loading the original file and reading its headers
 original_data = open('../data/saved_item.csv','rb')
@@ -21,7 +26,8 @@ for i in range(len(headers)):
 # print item_column
 # print user_column
 
-# Not let's create a dictionary of { user: { item: 1.0, ...}, ... }
+
+# # Not let's create a dictionary of { user: { item: 1.0, ...}, ... }
 user_dict = {}
 
 # Make a dictionary with user preferences
@@ -42,9 +48,8 @@ for row in reader:
 
 print("Found " + str(len(user_dict)) + " users.")
 
-# Saving everything to a json file
-jsonFile = open("../data/user_preferences.json", "w")
-jsonFile.write(json.dumps(user_dict, indent=4, sort_keys=True))
-jsonFile.close()
+# Saving everything to mongoDB
+for key, value in user_dict.items():
+    collection.insert({key: value})
 
-print('Successfully saved data to ../data/user_preferences.json')
+print('Successfully saved data to MongoDB met.items_by_user')
