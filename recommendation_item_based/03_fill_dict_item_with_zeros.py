@@ -1,36 +1,51 @@
-# Loading the python json module
-import json
+import pymongo
+from pymongo import MongoClient
+client = MongoClient('localhost', 27017)
+db = client['met']
 
-jsonFile = open("../data/item_preferences.json", "r")
-item_dict = json.load(jsonFile)
-jsonFile.close()
+users_collection = db['items_by_user']
+user_dict = {}
+for record in users_collection.find():
+	key = record['user'].keys()[0]
+	value = record['user'][key]
+	user_dict[key] = value
+print("Found " + str(len(user_dict)) + " unique users.")
 
-jsonFile = open("../data/user_preferences.json", "r")
-user_dict = json.load(jsonFile)
-jsonFile.close()
 
-# Use this to check if we saved a file for the items already
-from os import listdir
-from os.path import isfile, join
-saved_files = [ f for f in listdir("../data/") if isfile(join("../data/",f)) ]
-print(saved_files)
 
-for item in item_dict:
-	
-    if "crdid_"+item+".json" not in saved_files:
+items_collection = db['users_by_item']
+item_dict = {}
 
-		new_item = item_dict[item]
+# Loading the records from mongoDB
+for record in items_collection.find():
+	id = record['_id']
+	key = record['item'].keys()[0]
+	value = record['item'][key]
+	print(id)
+	print(len(value))
+	print(len(user_dict))
+	print("\n")
+	# print(items_collection.find_one({'_id': id}))
+
+	# We need as many elements as users inside each object
+	if len(value) < len(user_dict):
+
+		new_item = value
 
 		for user in user_dict:
 			
-			if user not in new_item:
+			if user not in value:
 
 				new_item.setdefault(user, 0)
 				# print("Added " + user + " to " + item)
+		# print(new_item)
+		# print(len(new_item))
+		items_collection.update({'_id': id}, { '$set': {'item': {key: new_item}} }, upsert=False)
+		print("Updated")		
+		# print(items_collection.find_one({'_id': id}))
+		print("************************************************")
+		print("\n")		
 
-		# Saving object to a json file
-		jsonFile = open("../data/crdid_"+item+".json", "w")
-		# jsonFile.write(json.dumps(new_item, indent=4, sort_keys=True))
-		jsonFile.write(json.dumps(new_item))
-		jsonFile.close()			
-		print('Successfully saved data to ../data/crdid_'+item+'.json')
+	else:
+		print("Item already updated.")
+		print("************************************************")
