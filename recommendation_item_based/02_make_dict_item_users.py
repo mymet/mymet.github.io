@@ -1,23 +1,31 @@
-# Loading the python json module
 import json
+import pymongo
+from pymongo import MongoClient
+client = MongoClient('localhost', 27017)
+db = client['met']
+collection = db['items_by_user']
 
 # These functions are in the helper_functions.py file
 from helper_functions import transformPrefs
 
-# Loading the original file and reading its headers
-jsonFile = open("../data/user_preferences.json", "r")
-users_dict = json.load(jsonFile)
-jsonFile.close()
-# pprint(users_dict)
+user_dict = {}
+
+# Loading the records from mongoDB
+for record in collection.find():
+	key = record['user'].keys()[0]
+	value = record['user'][key]
+	user_dict[key] = value
 
 # Make a dictionary with "item preferences"
 # Switch the dictionary from { person: { item: } }
 # 						  to { item: { person: } }
-itemPrefs = transformPrefs(users_dict)
+item_prefs = transformPrefs(user_dict)
+print("Found " + str(len(item_prefs)) + " unique items.")
 
-# Saving everything to a json file
-jsonFile = open("../data/item_preferences.json", "w")
-jsonFile.write(json.dumps(itemPrefs, indent=4, sort_keys=True))
-jsonFile.close()
+collection = db['users_by_item']
 
-print('Successfully saved data to ../data/item_preferences.json')
+# Saving everything to mongoDB
+for key, value in item_prefs.items():
+    collection.insert({'item': {key: value}})
+
+print('Successfully saved data to MongoDB met.users_by_item')

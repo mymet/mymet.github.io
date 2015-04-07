@@ -50,6 +50,6 @@ print("Found " + str(len(user_dict)) + " users.")
 
 # Saving everything to mongoDB
 for key, value in user_dict.items():
-    collection.insert({key: value})
+    collection.insert({'user': {key: value}})
 
 print('Successfully saved data to MongoDB met.items_by_user')
