@@ -79,17 +79,19 @@ def sim_distance(prefs, person1, person2):
 
 	for item in new_item_1:
 		if item not in new_item_2:
-			new_item_2.setdefault(item, 0)
+			new_item_2.setdefault(item, 0.0)
 
 	for item in new_item_2:
 		if item not in new_item_1:
-			new_item_1.setdefault(item, 0)
+			new_item_1.setdefault(item, 0.0)
 
 	print(len(new_item_1))
 	print(len(new_item_2))
 	
 	sum_of_squares = sum( [ pow( new_item_1[item] - new_item_2[item], 2 ) 
 							for item in new_item_1 if item in new_item_2] )
+
+	print("SUM ------- " + str(sum_of_squares))
 
 	# Similarity is inversely proportional to distance.
 	# This will reverse the result and map it to a 0-1 range.

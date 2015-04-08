@@ -44,7 +44,7 @@ for row in reader:
 
 	# Fill in the user collection with the new item
 	if item_id not in user_dict[user_id] and item_id != "NULL":
-		user_dict[user_id].setdefault(item_id, 1)
+		user_dict[user_id].setdefault(item_id, 1.0)
 
 print("Found " + str(len(user_dict)) + " users.")
 
