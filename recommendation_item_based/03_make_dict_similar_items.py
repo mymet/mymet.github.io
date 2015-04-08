@@ -99,8 +99,9 @@ def calculateSimilarItems(prefs, n = 10):
       print('SAVED****************************************************')
 
     # Updating the original list
-    original_item = items_collection.find_one({'item.'+key: {'$exists': True}})
+    original_item = items_collection.find_one({'item.'+item: {'$exists': True}})
     id = original_item['_id']
+    # print(id)
     items_collection.update({'_id': ObjectId(id)}, {'$set': {'analyzed': True}}, upsert = False)
     
   # return result
