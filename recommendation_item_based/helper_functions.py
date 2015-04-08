@@ -85,8 +85,8 @@ def sim_distance(prefs, person1, person2):
 		if item not in new_item_1:
 			new_item_1.setdefault(item, 0)
 
-	# print(len(new_item_1))
-	# print(len(new_item_2))
+	print(len(new_item_1))
+	print(len(new_item_2))
 	
 	sum_of_squares = sum( [ pow( new_item_1[item] - new_item_2[item], 2 ) 
 							for item in new_item_1 if item in new_item_2] )
