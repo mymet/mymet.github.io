@@ -3,6 +3,7 @@
 
 # loading the math function sqrt
 from math import sqrt
+import copy
 
 # ------------------------------------------------------------------
 
@@ -53,6 +54,7 @@ def sim_pearson(prefs, person1, person2):
 # EUCLIDEAN DISTANCE SCORE FOR SIMILARITY
 
 def sim_distance(prefs, person1, person2):
+	print('****************************************************')
 	# I'll be passing the whole list of objects into prefs
 	# print 'Called sim_distance (Euclidean Geometry Distance score)'
 
@@ -63,13 +65,33 @@ def sim_distance(prefs, person1, person2):
 			si[item] = 1
 			# 1 doesn't really mean anything special here
 			# We're just checking if these people have anything in common before calculating the similarity
+	
+	print("person1: " + str(len(prefs[person1])))
+	print("person2: " + str(len(prefs[person2])))
+	print("Shared items: " + str(len(si)))
 
 	# if they have no ratings in common, return 0
 	if len(si) == 0: return 0
 	# If it didn't return 0 above, let's calculate the similarity
+
+	new_item_1 = copy.deepcopy(prefs[person1])
+	new_item_2 = copy.deepcopy(prefs[person2])
+
+	for item in new_item_1:
+		if item not in new_item_2:
+			new_item_2.setdefault(item, 0.0)
+
+	for item in new_item_2:
+		if item not in new_item_1:
+			new_item_1.setdefault(item, 0.0)
+
+	print(len(new_item_1))
+	print(len(new_item_2))
 	
-	sum_of_squares = sum( [ pow( prefs[person1][item] - prefs[person2][item], 2 ) 
-							for item in prefs[person1] if item in prefs[person2]] )
+	sum_of_squares = sum( [ pow( new_item_1[item] - new_item_2[item], 2 ) 
+							for item in new_item_1 if item in new_item_2] )
+
+	print("SUM ------- " + str(sum_of_squares))
 
 	# Similarity is inversely proportional to distance.
 	# This will reverse the result and map it to a 0-1 range.
@@ -93,7 +115,6 @@ def topMatches(prefs, person, n = 5, similarity = sim_pearson):
 				for other in prefs if other != person]
 	# Notice that the first parameter above is creating objects:
 	# ( similarity(), person )
-
 
 	scores.sort()
 	scores.reverse()
