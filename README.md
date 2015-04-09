@@ -11,12 +11,12 @@ Spring, 2015
 
 ### DATA
 
-* Insert Collection info in each object
-
 * Get from scrapi:
-	* Clean up the objects that have no image
-	* Clean up the objects not currently on display
+	* Check whether or not object has image
+	* Check whether or not object is on display
 	* Get the gallery number (from the website)
+	* Get the department
+	* Get the image url
 	
 * Change the data format to:
 
@@ -26,10 +26,11 @@ Spring, 2015
 	gallery_number: 140,
 	department: 'egyptian art',
 	on_display: true/false,
-	img_url: 'http://...',
-	similar: [
-			0.01: 'item_id1',
-			0.005: 'item_id2'
+	img_url: 'http://...', // null if it doesn't have image?
+	similar_items: [
+			{ item_id: 004327, similarity: 0.01 },
+			{ item_id: 052345, similarity: 0.005 },
+			...
 	]
 }
 ```
@@ -37,7 +38,7 @@ Spring, 2015
 
 ### SERVER-SIDE
 
-* Program the interface with mongoDB
+* Program the interface with the data (json file)
 
 * Program the interface with the user
 	* Kart
