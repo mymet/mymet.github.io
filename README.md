@@ -22,7 +22,8 @@ Spring, 2015
 
 ```
 {
-	item_id: 085992,
+	item_id: 16584,
+	item_title: 'George Washington',
 	gallery_number: 140,
 	department: 'egyptian art',
 	on_display: true/false,
