@@ -3,6 +3,18 @@
 var app = {};
 
 app.init = function() {
+
+	var appendNavigation = function(department){
+		var navBar = $('<nav></nav>');
+		var home = $('<a href="/">home</a>');
+
+		$('body').append(navBar);
+		$(navBar).append(home);
+		if(department !== undefined){
+			navBar.append('<a href="department.html#' + encodeURIComponent(department) + '"> > ' + department + '</a>');
+		}
+	}
+	
 	var page = window.location.pathname;
 
 	// HOME
@@ -32,14 +44,17 @@ app.init = function() {
 		}
 
 		loadHome();
+		appendNavigation();
 
 	// DEPARTMENT
 	}else if(page.indexOf('department.html') > -1){
+
+		var department = decodeURIComponent(location.hash.substring(1));
 		
 		var loadDepartment = function(){
 			// console.log(location.hash.substring(1));
 			$.post('/department', {
-				'department': decodeURIComponent(location.hash.substring(1))
+				'department': department
 			}, function(response) {
 		        // console.log(response);
 		        if(response.error){
@@ -62,6 +77,7 @@ app.init = function() {
 		}		
 		
 		loadDepartment();
+		appendNavigation(department);
 	}
 
 	
