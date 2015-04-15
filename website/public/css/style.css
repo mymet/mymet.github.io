@@ -20,3 +20,12 @@ nav #my-collection{
 	display: inline-block;
 	float: right;
 }
+
+div#container{
+	text-align: center;
+}
+
+div#container img.item{
+	width: 200px;
+	vertical-align: middle;
+}

@@ -54,13 +54,72 @@ app.get('/home', function(request, response) {
     response.json(oneItemPerDepartment);
 });
 
-app.post('/department', function(request, response) {
-    console.log(request.body['department']);
-    var departmentItems = _.filter(allItems, function(item, key, list){
-        return item.department == request.body['department'];
+app.post('/recommendations', function(request, response) {
+    // console.log(request.body['items']);
+
+    // Grab the ids stored in the user's localStorage
+    var ids = request.body['items'].split(',');
+
+    // Get the full description for each of those ids
+    var fullItems = _.filter(allItems, function(item, index, array){
+        return ids.indexOf(item.item_id) > -1;
     });
-    console.log(departmentItems.length);
-    response.json(departmentItems);
+
+    // Creating the array of similar items
+    var similar = [];
+
+    // Loop through each of the selected items
+    fullItems.forEach(function(item, index, array){
+        // console.log(item.similar_items[0]);
+
+        // Loop through each of their similar items
+        for(var key in item.similar_items[0]){
+
+            // Only add items that are not in my list
+            if(ids.indexOf(key) < 0){
+                var obj = {
+                    item_id: key,
+                    similarity: item.similar_items[0][key]
+                }
+                similar.push(obj);                
+            }
+            // console.log(key + ', ' + item.similar_items[0][key]);
+        }
+    });
+    // console.log(similar);
+    // console.log(similar.length);
+
+    // Sortby similarity
+    similar = _.sortBy(similar, function(item, index, array){
+        // console.log(item.similarity);
+        return item.similarity;
+    });
+    // Reverse order
+    similar.reverse();
+    // Grab only the top 20
+    similar = similar.slice(0, 20);
+    // console.log(similar);
+    console.log(similar.length);
+
+    similar = _.map()
+
+    // Grab the images for the objects!
+    var itemsToSendBack = _.filter(allItems, function(item, index, array){
+        console.log(item.item_id);
+        // return similar.indexOf(item.item_id) > -1;
+    });
+    console.log(itemsToSendBack.length);
+
+    // response.json(similar);
+});
+
+app.post('/collection', function(request, response) {
+    // console.log(request.body['items']);
+    var ids = request.body['items'].split(',');
+    var fullItems = _.filter(allItems, function(item, index, array){
+        return ids.indexOf(item.item_id) > -1;
+    });
+    response.json(fullItems);
 });
 
 
