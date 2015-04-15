@@ -1,4 +1,6 @@
-data/
+data/saved_item.csv
+data/item_preferences.json
+data/user_preferences.json
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
