@@ -6,13 +6,18 @@ app.init = function() {
 
 	var appendNavigation = function(department){
 		var navBar = $('<nav></nav>');
-		var home = $('<a href="/">home</a>');
+			var home = $('<p id="home"><a href="/">home</a></p>');
+				if(department !== undefined){
+					home.append('<span> > ' + department + '</span>');
+				}
+			var title = $('<p id="title">My Met</p>');
+			var myCollection = $('<p id="my-collection">My Collection</p>');
 
 		$('body').append(navBar);
+		$(navBar).append(title);		
 		$(navBar).append(home);
-		if(department !== undefined){
-			navBar.append('<a href="department.html#' + encodeURIComponent(department) + '"> > ' + department + '</a>');
-		}
+		$(navBar).append(myCollection);
+
 	}
 	
 	var page = window.location.pathname;
@@ -60,7 +65,7 @@ app.init = function() {
 		        if(response.error){
 		        	throw response.error	
 		        }else{
-					console.log(response);
+					// console.log(response);
 					appendImages(response);
 		        }
 		    });			
@@ -78,6 +83,10 @@ app.init = function() {
 		
 		loadDepartment();
 		appendNavigation(department);
+
+	// RECOMMENDATIONS
+	}else if(page.indexOf('recommendations.html') > -1){
+
 	}
 
 	

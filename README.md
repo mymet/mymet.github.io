@@ -24,10 +24,10 @@ Spring, 2015
 {
 	item_id: 16584,
 	item_title: 'George Washington',
-	gallery_number: 140,
-	department: 'egyptian art',
-	on_display: true/false,
-	img_url: 'http://...', // null if it doesn't have image?
+	gallery_number: 140/null, // null if object is not on display
+	department: 'egyptian art'/null,
+	img_url_web: 'http://...', // null if it doesn't have image?
+	img_url_big: 'http://...', // null if it doesn't have image?
 	similar_items: [
 			{ item_id: 004327, similarity: 0.01 },
 			{ item_id: 052345, similarity: 0.005 },
