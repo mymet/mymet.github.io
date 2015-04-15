@@ -92,10 +92,10 @@ app.init = function() {
 		var appendImages = function(response){
 			response.forEach(function(item, index, array){
 				// console.log(item.img_url_web);
-				// var link = $('<a href="department.html#' + encodeURIComponent(item.department) + '"></a>');
+				var link = $('<a href="recommendations.html"></a>');
 				var image = $('<img class="item" name="' + item.item_id + '" src="' + item.img_url_web + '"/>');
-				$('#container').append(image);
-				// $(link).append(image);
+				$('#container').append(link);
+				$(link).append(image);
 			});
 			attachEvents();
 		}		
@@ -117,7 +117,7 @@ app.init = function() {
 		        if(response.error){
 		        	throw response.error	
 		        }else{
-					// console.log(response);
+					console.log(response);
 					appendImages(response);
 		        }
 		    });			
@@ -126,10 +126,10 @@ app.init = function() {
 		var appendImages = function(response){
 			response.forEach(function(item, index, array){
 				// console.log(item.img_url_web);
-				// var link = $('<a href="department.html#' + encodeURIComponent(item.department) + '"></a>');
+				var link = $('<a href="recommendations.html"></a>');
 				var image = $('<img class="item" name="' + item.item_id + '" src="' + item.img_url_web + '"/>');
-				$('#container').append(image);
-				// $(link).append(image);
+				$('#container').append(link);
+				$(link).append(image);
 			});
 			attachEvents();
 		}		

@@ -130,6 +130,15 @@ app.post('/recommendations', function(request, response) {
     response.json(itemsToSendBack);
 });
 
+app.post('/department', function(request, response) {
+    console.log(request.body['department']);
+    var departmentItems = _.filter(allItems, function(item, key, list){
+        return item.department == request.body['department'];
+    });
+    console.log(departmentItems.length);
+    response.json(departmentItems);
+});
+
 app.post('/collection', function(request, response) {
     // console.log(request.body['items']);
     var ids = request.body['items'].split(',');
