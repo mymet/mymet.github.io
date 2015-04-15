@@ -117,8 +117,8 @@ app.init = function() {
 		        if(response.error){
 		        	throw response.error	
 		        }else{
-					console.log(response);
-					// appendImages(response);
+					// console.log(response);
+					appendImages(response);
 		        }
 		    });			
 		}

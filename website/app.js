@@ -66,7 +66,7 @@ app.post('/recommendations', function(request, response) {
     });
 
     // Creating the array of similar items
-    var similar = [];
+    var similar = {};
 
     // Loop through each of the selected items
     fullItems.forEach(function(item, index, array){
@@ -75,42 +75,59 @@ app.post('/recommendations', function(request, response) {
         // Loop through each of their similar items
         for(var key in item.similar_items[0]){
 
-            // Only add items that are not in my list
+            // Only add items that are not in the user's list
             if(ids.indexOf(key) < 0){
-                var obj = {
-                    item_id: key,
-                    similarity: item.similar_items[0][key]
+                // If the object doesn't exist in the 'similar' list,
+                // Create a new one
+                if(similar[key] === undefined){
+                    similar[key] = item.similar_items[0][key];
+
+                // else, check which one has greater similarity
+                }else{
+                    if(item.similar_items[0][key] > similar[key]){
+                        similar[key] = item.similar_items[0][key];
+                    }
                 }
-                similar.push(obj);                
             }
-            // console.log(key + ', ' + item.similar_items[0][key]);
         }
     });
+    // console.log(Object.keys(similar).length);
     // console.log(similar);
-    // console.log(similar.length);
 
-    // Sortby similarity
-    similar = _.sortBy(similar, function(item, index, array){
+    // Convert to object
+    similar = _.map(similar, function(value, key, collection){
+        return { item_id: key, similarity: value };
+    });
+    // console.log(similar);
+    
+    // Sort by similarity
+    similar = _.sortBy(similar, function(item, index, list){
         // console.log(item.similarity);
         return item.similarity;
     });
+    // console.log(similar);
     // Reverse order
     similar.reverse();
     // Grab only the top 20
     similar = similar.slice(0, 20);
     // console.log(similar);
-    console.log(similar.length);
+    // console.log(similar.length);
 
-    similar = _.map()
-
-    // Grab the images for the objects!
-    var itemsToSendBack = _.filter(allItems, function(item, index, array){
-        console.log(item.item_id);
-        // return similar.indexOf(item.item_id) > -1;
+    // Now let's get rid of the similarity indexes and leave just the ids
+    similar = _.map(similar, function(item, index, array){
+        return item.item_id;
     });
-    console.log(itemsToSendBack.length);
+    // console.log(similar);
+    // console.log(similar.length);
 
-    // response.json(similar);
+    // At last, look for these ids into the full array
+    // and grab the images for them!
+    var itemsToSendBack = _.filter(allItems, function(item, index, array){
+        // console.log(item.item_id);
+        return similar.indexOf(item.item_id) > -1;
+    });
+    // console.log(itemsToSendBack.length);
+    response.json(itemsToSendBack);
 });
 
 app.post('/collection', function(request, response) {
