@@ -21,6 +21,21 @@ app.init = function() {
 
 	}
 
+	var appendImages = function(response, homepage){
+		response.forEach(function(item, index, array){
+			// console.log(item.img_url_web);
+			if(homepage){
+				var link = $('<a href="department.html#' + encodeURIComponent(item.department) + '"></a>');
+			}else{
+				var link = $('<a href="recommendations.html#' + item.item_id + '"></a>');	
+			}
+			var image = $('<img class="item" name="' + item.item_id + '" src="' + item.img_url_web + '"/>');
+			$('#container').append(link);
+			$(link).append(image);
+		});
+		attachEvents();
+	}	
+
 	var attachEvents = function(){
 		$('.item').off('click').on('click', function(){
 			// console.log($(this).attr('name'));
@@ -51,20 +66,9 @@ app.init = function() {
 		        	throw response.error	
 		        }else{
 					// console.log(response);
-					appendImages(response);
+					appendImages(response, true);
 		        }
 		    });
-		}
-
-		var appendImages = function(response){
-			response.forEach(function(item, index, array){
-				// console.log(item.img_url_web);
-				var link = $('<a href="department.html#' + encodeURIComponent(item.department) + '"></a>');
-				var image = $('<img class="item" name="' + item.item_id + '" src="' + item.img_url_web + '"/>');
-				$('#container').append(link);
-				$(link).append(image);
-			});
-			attachEvents();
 		}
 		
 		appendNavigation();
@@ -89,17 +93,6 @@ app.init = function() {
 		    });			
 		}
 
-		var appendImages = function(response){
-			response.forEach(function(item, index, array){
-				// console.log(item.img_url_web);
-				var link = $('<a href="recommendations.html"></a>');
-				var image = $('<img class="item" name="' + item.item_id + '" src="' + item.img_url_web + '"/>');
-				$('#container').append(link);
-				$(link).append(image);
-			});
-			attachEvents();
-		}		
-
 		var department = decodeURIComponent(location.hash.substring(1));		
 		appendNavigation(department);
 		loadDepartment();
@@ -123,17 +116,6 @@ app.init = function() {
 		    });			
 		}
 
-		var appendImages = function(response){
-			response.forEach(function(item, index, array){
-				// console.log(item.img_url_web);
-				var link = $('<a href="recommendations.html"></a>');
-				var image = $('<img class="item" name="' + item.item_id + '" src="' + item.img_url_web + '"/>');
-				$('#container').append(link);
-				$(link).append(image);
-			});
-			attachEvents();
-		}		
-
 		appendNavigation();
 		loadRecommendations();
 
@@ -155,17 +137,6 @@ app.init = function() {
 		        }
 		    });			
 		}
-
-		var appendImages = function(response){
-			response.forEach(function(item, index, array){
-				// console.log(item.img_url_web);
-				// var link = $('<a href="department.html#' + encodeURIComponent(item.department) + '"></a>');
-				var image = $('<img class="item" name="' + item.item_id + '" src="' + item.img_url_web + '"/>');
-				$('#container').append(image);
-				// $(link).append(image);
-			});
-			attachEvents();
-		}		
 
 		appendNavigation();
 		loadCollection();
