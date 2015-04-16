@@ -35,7 +35,9 @@ Spring, 2015
 	]
 }
 ```
-
+* 10 items based on user's collection
+* 10 related to the last object the user picked
+* 5 random
 
 ### SERVER-SIDE
 
