@@ -21,13 +21,20 @@ app.init = function() {
 
 	}
 
+	var getParameterByName = function(name) {
+	    name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
+	    var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
+	        results = regex.exec(location.search);
+	    return results === null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
+	}
+
 	var appendImages = function(response, homepage){
 		response.forEach(function(item, index, array){
 			// console.log(item.img_url_web);
 			if(homepage){
 				var link = $('<a href="department.html#' + encodeURIComponent(item.department) + '"></a>');
 			}else{
-				var link = $('<a href="recommendations.html#' + item.item_id + '"></a>');	
+				var link = $('<a href="recommendations.html?main_item_id=' + item.item_id + '"></a>');	
 			}
 			var image = $('<img class="item" name="' + item.item_id + '" src="' + item.img_url_web + '"/>');
 			$('#container').append(link);
@@ -104,6 +111,7 @@ app.init = function() {
 		var loadRecommendations = function(){
 			// console.log(location.hash.substring(1));
 			$.post('/recommendations', {
+				'main_item': mainItemId,
 				'items': localStorage['collection']
 			}, function(response) {
 		        // console.log(response);
@@ -116,6 +124,8 @@ app.init = function() {
 		    });			
 		}
 
+		var mainItemId = getParameterByName('main_item_id');
+		console.log(mainItemId);
 		appendNavigation();
 		loadRecommendations();
 

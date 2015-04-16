@@ -55,6 +55,8 @@ app.get('/home', function(request, response) {
 });
 
 app.post('/recommendations', function(request, response) {
+
+    console.log(request.body['main_item']);
     // console.log(request.body['items']);
 
     // Grab the ids stored in the user's localStorage
@@ -129,6 +131,10 @@ app.post('/recommendations', function(request, response) {
     // console.log(itemsToSendBack.length);
     response.json(itemsToSendBack);
 });
+
+// var relatedToCollection(items){
+
+// }
 
 app.post('/department', function(request, response) {
     console.log(request.body['department']);
