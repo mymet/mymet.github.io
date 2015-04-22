@@ -2,7 +2,8 @@
 var		express = require('express'),			  // Run server
 	 bodyParser = require('body-parser'),		  // Parse requests
 			 jf = require('jsonfile'),			  // Read json files
-			  _ = require('underscore');		  // Filtering/sorting
+			  _ = require('underscore'),		  // Filtering/sorting
+     prettyjson = require('prettyjson');              
 
 /*-------------------- SETUP --------------------*/
 var app = express();
@@ -29,40 +30,150 @@ app.use('/', express.static(__dirname + '/public'));
 
 /*-------------------- DATA ---------------------*/
 var allItems = jf.readFileSync('data/similar_items.json');
+
+// Filtering the ones on display AND with a thumb on the website
+allItems = _.filter(allItems, function(item, key, list){
+    return item.department != null &&
+           item.img_url_web != null;
+});
 // console.log(allItems);
 
 /*------------------- ROUTERS -------------------*/
 
 
-app.get('/home', function(request, response) {
+app.post('/home', function(request, response) {
     // console.log(allItems.length);
-    var nonNullGalleryItems = _.filter(allItems, function(item, key, list){
-        return item.department != null;
-    });
-    // console.log(nonNullGalleryItems.length);
-    
-    var itemsByDepartment = _.groupBy(nonNullGalleryItems, function(item){
+    console.log(request.body);
+    console.log('Items in the collection: ' + request.body['items_in_collection']);    
+
+    var itemNotSaved = removeItemsAlreadySaved(allItems, request.body['items_in_collection']);
+
+    var itemsByDepartment = _.groupBy(itemNotSaved, function(item){
         return item.department;
     });
-    // response.json(itemsByDepartment);
+    // console.log(prettyjson.render(itemsByDepartment));
 
     var oneItemPerDepartment = _.map(itemsByDepartment, function(items, key, list){
         // console.log(key);
         // console.log(_.sample(items, 1));
         return _.sample(items, 1)[0];
     });
+    
     response.json(oneItemPerDepartment);
+});
+
+app.post('/department', function(request, response) {
+    console.log('Main item: ' + request.body['main_item']);
+    console.log('Department: ' + request.body['department']);
+    console.log('Items in the collection: ' + request.body['items_in_collection']);
+
+    var mainItem = _.filter(allItems, function(item, index, array){
+        return item.item_id == request.body['main_item'];
+    });
+
+    var departmentItems = _.filter(allItems, function(item, key, list){
+        return item.department == request.body['department'] &&
+               item.item_id != request.body['main_item']; // Remove the main item
+    });
+
+    departmentItems = removeItemsAlreadySaved(departmentItems, request.body['items_in_collection']);
+
+    response.json({
+        main_item: mainItem[0],
+        department_items: departmentItems   
+    });
+});
+
+app.post('/collection', function(request, response) {
+
+    console.log('Items in the collection: ' + request.body['items_in_collection']);
+
+    var fullItems = '';
+
+    if(request.body['items_in_collection'] !== undefined){
+        var ids = request.body['items_in_collection'].split(',');
+        fullItems = _.filter(allItems, function(item, index, array){
+            return ids.indexOf(item.item_id) > -1;
+        });
+    }
+    response.json(fullItems);            
 });
 
 app.post('/recommendations', function(request, response) {
 
-    console.log(request.body['main_item']);
-    // console.log(request.body['items']);
+    console.log('Main item: ' + request.body['main_item']);
+    console.log('Items in the collection: ' + request.body['items_in_collection']);
+
+    var mainItem = _.filter(allItems, function(item, index, array){
+        return item.item_id == request.body['main_item'];
+    });
+    console.log(mainItem[0]); // Because underscore will return an array,
+                              // but we're actually looking for a single item
+
+    var itemsSimilarToMain = getItemsSimilarToMain(mainItem[0]['similar_items'][0]);
+
+    var itemsSimilarToCollection = '';
+    if(request.body['items_in_collection'] !== undefined){
+        itemsSimilarToCollection = getItemsSimilarToCollection(request.body['items_in_collection']);    
+    }
+    
+    response.json({
+        main_item: mainItem[0],
+        similar_to_main: itemsSimilarToMain,
+        similar_to_collection: itemsSimilarToCollection   
+    });
+});
+
+
+/*------------------- FUNCTIONS -------------------*/
+
+var removeItemsAlreadySaved = function(originalList, itemsInCollection){
+
+    console.log('Called removeItemsAlreadySaved');
+
+    if(itemsInCollection !== undefined){
+        
+        itemsInCollection = itemsInCollection.split(',');
+        console.log(itemsInCollection);
+
+        var filteredList = _.filter(originalList, function(item, key, list){
+            return itemsInCollection.indexOf(item.item_id) < 0;
+        });
+        // console.log(departmentItems.length);
+        return filteredList;
+
+    }else{
+
+        return originalList;
+    }   
+}
+
+var getItemsSimilarToMain = function(items){
+
+    console.log('Called getItemsSimilarToMain');
+
+    // console.log(items);
+    // console.log(Object.keys(items).length);
+    
+    // Get the full record for each of those ids
+    var fullItems = _.filter(allItems, function(item, index, array){
+        return items[item.item_id] !== undefined;
+    });
+
+    // console.log(fullItems);
+    // console.log(fullItems.length);
+
+    return fullItems;
+}
+
+var getItemsSimilarToCollection = function(items){
+
+    console.log('Called getItemsSimilarToCollection');
 
     // Grab the ids stored in the user's localStorage
-    var ids = request.body['items'].split(',');
+    var ids = items.split(',');
 
-    // Get the full description for each of those ids
+    // Get the full record for each of those ids
     var fullItems = _.filter(allItems, function(item, index, array){
         return ids.indexOf(item.item_id) > -1;
     });
@@ -97,12 +208,13 @@ app.post('/recommendations', function(request, response) {
     // console.log(similar);
 
     // Convert to object
+    // We just need the id and the similarity index to make the ranking
     similar = _.map(similar, function(value, key, collection){
         return { item_id: key, similarity: value };
     });
     // console.log(similar);
     
-    // Sort by similarity
+    // Sort by similarity (ranking)
     similar = _.sortBy(similar, function(item, index, list){
         // console.log(item.similarity);
         return item.similarity;
@@ -129,30 +241,9 @@ app.post('/recommendations', function(request, response) {
         return similar.indexOf(item.item_id) > -1;
     });
     // console.log(itemsToSendBack.length);
-    response.json(itemsToSendBack);
-});
 
-// var relatedToCollection(items){
-
-// }
-
-app.post('/department', function(request, response) {
-    console.log(request.body['department']);
-    var departmentItems = _.filter(allItems, function(item, key, list){
-        return item.department == request.body['department'];
-    });
-    console.log(departmentItems.length);
-    response.json(departmentItems);
-});
-
-app.post('/collection', function(request, response) {
-    // console.log(request.body['items']);
-    var ids = request.body['items'].split(',');
-    var fullItems = _.filter(allItems, function(item, index, array){
-        return ids.indexOf(item.item_id) > -1;
-    });
-    response.json(fullItems);
-});
+    return itemsToSendBack;
+}
 
 
 /*----------------- INIT SERVER -----------------*/
