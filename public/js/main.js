@@ -109,7 +109,9 @@ app.init = function() {
 
 		// console.log('Your code starts here!');
 		var loadHome = function(){
-			$.get('/home', {}, function(response) {
+			$.post('/home', {
+				'items_in_collection': localStorage['collection']
+			}, function(response) {
 		        // console.log(response);
 		        if(response.error){
 		        	throw response.error	
@@ -220,8 +222,8 @@ app.init = function() {
 		        if(response.error){
 		        	throw response.error	
 		        }else{
-					// console.log(response);
-					if(localStorage['collection'] !== undefined && localStorage['collection'] != ''){
+					console.log(response);
+					if(response != ''){
 						$('body').append('<h3>Click on items to remove them from your collection</h3>');
 					}else{
 						$('body').append('<h3>You don\'t have items in your collection</h3>');

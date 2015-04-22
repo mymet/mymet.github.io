@@ -41,10 +41,14 @@ allItems = _.filter(allItems, function(item, key, list){
 /*------------------- ROUTERS -------------------*/
 
 
-app.get('/home', function(request, response) {
+app.post('/home', function(request, response) {
     // console.log(allItems.length);
-    
-    var itemsByDepartment = _.groupBy(allItems, function(item){
+    console.log(request.body);
+    console.log('Items in the collection: ' + request.body['items_in_collection']);    
+
+    var itemNotSaved = removeItemsAlreadySaved(allItems, request.body['items_in_collection']);
+
+    var itemsByDepartment = _.groupBy(itemNotSaved, function(item){
         return item.department;
     });
     // console.log(prettyjson.render(itemsByDepartment));
@@ -54,6 +58,7 @@ app.get('/home', function(request, response) {
         // console.log(_.sample(items, 1));
         return _.sample(items, 1)[0];
     });
+    
     response.json(oneItemPerDepartment);
 });
 
@@ -62,22 +67,16 @@ app.post('/department', function(request, response) {
     console.log('Department: ' + request.body['department']);
     console.log('Items in the collection: ' + request.body['items_in_collection']);
 
-    var itemsInCollection = request.body['items_in_collection'].split(',');
-
     var mainItem = _.filter(allItems, function(item, index, array){
         return item.item_id == request.body['main_item'];
     });
 
     var departmentItems = _.filter(allItems, function(item, key, list){
         return item.department == request.body['department'] &&
-
-               // Only items not in the collection
-               itemsInCollection.indexOf(item.item_id) < 0 &&
-
-               // And different from the main item
-               item.item_id != request.body['main_item'];
+               item.item_id != request.body['main_item']; // Remove the main item
     });
-    // console.log(departmentItems.length);
+
+    departmentItems = removeItemsAlreadySaved(departmentItems, request.body['items_in_collection']);
 
     response.json({
         main_item: mainItem[0],
@@ -86,12 +85,18 @@ app.post('/department', function(request, response) {
 });
 
 app.post('/collection', function(request, response) {
+
     console.log('Items in the collection: ' + request.body['items_in_collection']);
-    var ids = request.body['items_in_collection'].split(',');
-    var fullItems = _.filter(allItems, function(item, index, array){
-        return ids.indexOf(item.item_id) > -1;
-    });
-    response.json(fullItems);
+
+    var fullItems = '';
+
+    if(request.body['items_in_collection'] !== undefined){
+        var ids = request.body['items_in_collection'].split(',');
+        fullItems = _.filter(allItems, function(item, index, array){
+            return ids.indexOf(item.item_id) > -1;
+        });
+    }
+    response.json(fullItems);            
 });
 
 app.post('/recommendations', function(request, response) {
@@ -118,6 +123,27 @@ app.post('/recommendations', function(request, response) {
 
 
 /*------------------- FUNCTIONS -------------------*/
+
+var removeItemsAlreadySaved = function(originalList, itemsInCollection){
+
+    console.log('Called removeItemsAlreadySaved');
+
+    if(itemsInCollection !== undefined){
+        
+        itemsInCollection = itemsInCollection.split(',');
+        console.log(itemsInCollection);
+
+        var filteredList = _.filter(originalList, function(item, key, list){
+            return itemsInCollection.indexOf(item.item_id) < 0;
+        });
+        // console.log(departmentItems.length);
+        return filteredList;
+
+    }else{
+
+        return originalList;
+    }   
+}
 
 var getItemsSimilarToMain = function(items){
 
