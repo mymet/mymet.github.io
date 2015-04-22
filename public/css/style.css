@@ -19,9 +19,13 @@ div#container{
 	text-align: center;
 }
 
-div#container img.item{
-	width: 200px;
+div#container .item{
+	display: inline-block;
 	vertical-align: middle;
+}
+
+div#container .item img{
+	width: 200px;
 }
 
 div#container .main{

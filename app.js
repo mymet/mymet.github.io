@@ -112,7 +112,10 @@ app.post('/recommendations', function(request, response) {
 
     var itemsSimilarToMain = getItemsSimilarToMain(mainItem[0]['similar_items'][0]);
 
-    var itemsSimilarToCollection = getItemsSimilarToCollection(request.body['items_in_collection']);
+    var itemsSimilarToCollection = '';
+    if(request.body['items_in_collection'] !== undefined){
+        itemsSimilarToCollection = getItemsSimilarToCollection(request.body['items_in_collection']);    
+    }
     
     response.json({
         main_item: mainItem[0],

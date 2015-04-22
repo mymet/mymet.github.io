@@ -26,8 +26,14 @@ app.init = function() {
 		data.forEach(function(item, index, array){
 			// console.log(item.img_url_web);
 
+			var div = $('<div class="item"></div>')
+
 			if(page == '/' || page == '/index.html'){
-				var link = $('<a href="department.html?main_item_id=' + item.item_id + '#' + encodeURIComponent(item.department) + '"></a>');
+				// Redirect to department?
+				// var link = $('<a href="department.html?main_item_id=' + item.item_id + '#' + encodeURIComponent(item.department) + '">' + item.department + '<br/></a>');
+
+				// Go straight to recommendations
+				var link = $('<a href="recommendations.html?main_item_id=' + item.item_id + '">' + item.department + '<br/></a>');	
 
 			}else if(page.indexOf('collection.html') > -1){
 				var link = $('<a class="remove-bt" href="" name="' + item.item_id + '"></a>');
@@ -35,9 +41,10 @@ app.init = function() {
 			}else{
 				var link = $('<a href="recommendations.html?main_item_id=' + item.item_id + '"></a>');	
 			}
+			var image = $('<img name="' + item.item_id + '" src="' + item.img_url_web + '"/>');
 
-			var image = $('<img class="item" name="' + item.item_id + '" src="' + item.img_url_web + '"/>');
-			$(container).append(link);
+			$(container).append(div);
+			$(div).append(link);
 			$(link).append(image);
 		});
 
@@ -194,12 +201,15 @@ app.init = function() {
 												'</div>');
 
 					$('#container').append(mainItem);
-					$('#container').append(similarToMain);
-					$('#container').append(similarToCollection);
-
 					appendMainItem(response['main_item'], mainItem);
+
+					$('#container').append(similarToMain);
 					appendImages(response['similar_to_main'], similarToMain);
-					appendImages(response['similar_to_collection'], similarToCollection);
+
+					if(response['similar_to_collection'] != ''){
+						$('#container').append(similarToCollection);	
+						appendImages(response['similar_to_collection'], similarToCollection);
+					}
 		        }
 		    });			
 		}
