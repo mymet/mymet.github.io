@@ -2,7 +2,8 @@
 var		express = require('express'),			  // Run server
 	 bodyParser = require('body-parser'),		  // Parse requests
 			 jf = require('jsonfile'),			  // Read json files
-			  _ = require('underscore');		  // Filtering/sorting
+			  _ = require('underscore'),		  // Filtering/sorting
+     prettyjson = require('prettyjson');              
 
 /*-------------------- SETUP --------------------*/
 var app = express();
@@ -29,6 +30,12 @@ app.use('/', express.static(__dirname + '/public'));
 
 /*-------------------- DATA ---------------------*/
 var allItems = jf.readFileSync('data/similar_items.json');
+
+// Filtering the ones on display AND with a thumb on the website
+allItems = _.filter(allItems, function(item, key, list){
+    return item.department != null &&
+           item.img_url_web != null;
+});
 // console.log(allItems);
 
 /*------------------- ROUTERS -------------------*/
@@ -36,15 +43,11 @@ var allItems = jf.readFileSync('data/similar_items.json');
 
 app.get('/home', function(request, response) {
     // console.log(allItems.length);
-    var nonNullGalleryItems = _.filter(allItems, function(item, key, list){
-        return item.department != null;
-    });
-    // console.log(nonNullGalleryItems.length);
     
-    var itemsByDepartment = _.groupBy(nonNullGalleryItems, function(item){
+    var itemsByDepartment = _.groupBy(allItems, function(item){
         return item.department;
     });
-    // response.json(itemsByDepartment);
+    // console.log(prettyjson.render(itemsByDepartment));
 
     var oneItemPerDepartment = _.map(itemsByDepartment, function(items, key, list){
         // console.log(key);
@@ -55,17 +58,36 @@ app.get('/home', function(request, response) {
 });
 
 app.post('/department', function(request, response) {
-    console.log(request.body['department']);
-    var departmentItems = _.filter(allItems, function(item, key, list){
-        return item.department == request.body['department'];
+    console.log('Main item: ' + request.body['main_item']);
+    console.log('Department: ' + request.body['department']);
+    console.log('Items in the collection: ' + request.body['items_in_collection']);
+
+    var itemsInCollection = request.body['items_in_collection'].split(',');
+
+    var mainItem = _.filter(allItems, function(item, index, array){
+        return item.item_id == request.body['main_item'];
     });
-    console.log(departmentItems.length);
-    response.json(departmentItems);
+
+    var departmentItems = _.filter(allItems, function(item, key, list){
+        return item.department == request.body['department'] &&
+
+               // Only items not in the collection
+               itemsInCollection.indexOf(item.item_id) < 0 &&
+
+               // And different from the main item
+               item.item_id != request.body['main_item'];
+    });
+    // console.log(departmentItems.length);
+
+    response.json({
+        main_item: mainItem[0],
+        department_items: departmentItems   
+    });
 });
 
 app.post('/collection', function(request, response) {
-    // console.log(request.body['items']);
-    var ids = request.body['items'].split(',');
+    console.log('Items in the collection: ' + request.body['items_in_collection']);
+    var ids = request.body['items_in_collection'].split(',');
     var fullItems = _.filter(allItems, function(item, index, array){
         return ids.indexOf(item.item_id) > -1;
     });
@@ -75,7 +97,7 @@ app.post('/collection', function(request, response) {
 app.post('/recommendations', function(request, response) {
 
     console.log('Main item: ' + request.body['main_item']);
-    console.log('Items in the collection: ' + request.body['items']);
+    console.log('Items in the collection: ' + request.body['items_in_collection']);
 
     var mainItem = _.filter(allItems, function(item, index, array){
         return item.item_id == request.body['main_item'];
@@ -85,7 +107,7 @@ app.post('/recommendations', function(request, response) {
 
     var itemsSimilarToMain = getItemsSimilarToMain(mainItem[0]['similar_items'][0]);
 
-    var itemsSimilarToCollection = getItemsSimilarToCollection(request.body['items']);
+    var itemsSimilarToCollection = getItemsSimilarToCollection(request.body['items_in_collection']);
     
     response.json({
         main_item: mainItem[0],
