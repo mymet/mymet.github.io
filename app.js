@@ -56,13 +56,29 @@ app.get('/home', function(request, response) {
 
 app.post('/recommendations', function(request, response) {
 
-    console.log(request.body['main_item']);
-    // console.log(request.body['items']);
+    console.log('Main item: ' + request.body['main_item']);
+    console.log('Items in the collection: ' + request.body['items']);
 
+    var mainItem = _.filter(allItems, function(item, index, array){
+        return item.item_id == request.body['main_item'];
+    });
+    console.log(mainItem[0]); // Because underscore will return an array,
+                              // but we're actually looking for a single item
+
+    var itemsSimilarToCollection = getItemsSimilarToCollection(request.body['items']);
+    
+    response.json({
+        main_item: mainItem[0],
+        // similiar_to_selected: ,
+        similar_to_collection: itemsSimilarToCollection   
+    });
+});
+
+var getItemsSimilarToCollection = function(items){
     // Grab the ids stored in the user's localStorage
-    var ids = request.body['items'].split(',');
+    var ids = items.split(',');
 
-    // Get the full description for each of those ids
+    // Get the full record for each of those ids
     var fullItems = _.filter(allItems, function(item, index, array){
         return ids.indexOf(item.item_id) > -1;
     });
@@ -97,12 +113,13 @@ app.post('/recommendations', function(request, response) {
     // console.log(similar);
 
     // Convert to object
+    // We just need the id and the similarity index to make the ranking
     similar = _.map(similar, function(value, key, collection){
         return { item_id: key, similarity: value };
     });
     // console.log(similar);
     
-    // Sort by similarity
+    // Sort by similarity (ranking)
     similar = _.sortBy(similar, function(item, index, list){
         // console.log(item.similarity);
         return item.similarity;
@@ -129,12 +146,9 @@ app.post('/recommendations', function(request, response) {
         return similar.indexOf(item.item_id) > -1;
     });
     // console.log(itemsToSendBack.length);
-    response.json(itemsToSendBack);
-});
 
-// var relatedToCollection(items){
-
-// }
+    return itemsToSendBack;
+}
 
 app.post('/department', function(request, response) {
     console.log(request.body['department']);

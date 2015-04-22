@@ -44,17 +44,26 @@ app.init = function() {
 	}	
 
 	var attachEvents = function(){
-		$('.item').off('click').on('click', function(){
+		$('.add-bt').off('click').on('click', function(){
 			// console.log($(this).attr('name'));
+
+			// Does the user already have a collection?
+
+			// Yes. Let's split it into an array and add one more item
 			if(localStorage['collection'] !== undefined){
 				// console.log(localStorage['collection'].split(',').length);
 				var savedItems = localStorage['collection'].split(',');
 				savedItems.push($(this).attr('name'));
 				// console.log(savedItems);
 				localStorage['collection'] = savedItems;
+
+			// No. Just add this item
 			}else{
 				localStorage['collection'] = $(this).attr('name');
-			}			
+			}
+
+			// Go back to the previous page
+			history.go(-1);
 		});
 	}
 	
@@ -119,7 +128,24 @@ app.init = function() {
 		        	throw response.error	
 		        }else{
 					console.log(response);
-					appendImages(response);
+					var mainItem = $('<div class="main">' +
+										  
+										  '<img ' +
+										  	'name="' + response['main_item'].item_id + '" ' +
+										  	'src="' + response['main_item'].img_url_web + '"' +
+										  '/>' +
+										  
+										  '<br/>' +
+
+										  '<button ' +
+										  	'class="add-bt"' +
+										  	'name="' + response['main_item'].item_id + '">' +
+										  	'Add' + 
+										  '</button>' +
+
+									  '</div>');
+					$('#container').append(mainItem);
+					appendImages(response['similar_to_collection']);
 		        }
 		    });			
 		}

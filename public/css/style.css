@@ -29,3 +29,8 @@ div#container img.item{
 	width: 200px;
 	vertical-align: middle;
 }
+
+div#container .main{
+	width: 100%;
+	display: block;
+}
