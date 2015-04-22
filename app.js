@@ -54,6 +54,24 @@ app.get('/home', function(request, response) {
     response.json(oneItemPerDepartment);
 });
 
+app.post('/department', function(request, response) {
+    console.log(request.body['department']);
+    var departmentItems = _.filter(allItems, function(item, key, list){
+        return item.department == request.body['department'];
+    });
+    console.log(departmentItems.length);
+    response.json(departmentItems);
+});
+
+app.post('/collection', function(request, response) {
+    // console.log(request.body['items']);
+    var ids = request.body['items'].split(',');
+    var fullItems = _.filter(allItems, function(item, index, array){
+        return ids.indexOf(item.item_id) > -1;
+    });
+    response.json(fullItems);
+});
+
 app.post('/recommendations', function(request, response) {
 
     console.log('Main item: ' + request.body['main_item']);
@@ -65,16 +83,42 @@ app.post('/recommendations', function(request, response) {
     console.log(mainItem[0]); // Because underscore will return an array,
                               // but we're actually looking for a single item
 
+    var itemsSimilarToMain = getItemsSimilarToMain(mainItem[0]['similar_items'][0]);
+
     var itemsSimilarToCollection = getItemsSimilarToCollection(request.body['items']);
     
     response.json({
         main_item: mainItem[0],
-        // similiar_to_selected: ,
+        similar_to_main: itemsSimilarToMain,
         similar_to_collection: itemsSimilarToCollection   
     });
 });
 
+
+/*------------------- FUNCTIONS -------------------*/
+
+var getItemsSimilarToMain = function(items){
+
+    console.log('Called getItemsSimilarToMain');
+
+    // console.log(items);
+    // console.log(Object.keys(items).length);
+    
+    // Get the full record for each of those ids
+    var fullItems = _.filter(allItems, function(item, index, array){
+        return items[item.item_id] !== undefined;
+    });
+
+    // console.log(fullItems);
+    // console.log(fullItems.length);
+
+    return fullItems;
+}
+
 var getItemsSimilarToCollection = function(items){
+
+    console.log('Called getItemsSimilarToCollection');
+
     // Grab the ids stored in the user's localStorage
     var ids = items.split(',');
 
@@ -149,24 +193,6 @@ var getItemsSimilarToCollection = function(items){
 
     return itemsToSendBack;
 }
-
-app.post('/department', function(request, response) {
-    console.log(request.body['department']);
-    var departmentItems = _.filter(allItems, function(item, key, list){
-        return item.department == request.body['department'];
-    });
-    console.log(departmentItems.length);
-    response.json(departmentItems);
-});
-
-app.post('/collection', function(request, response) {
-    // console.log(request.body['items']);
-    var ids = request.body['items'].split(',');
-    var fullItems = _.filter(allItems, function(item, index, array){
-        return ids.indexOf(item.item_id) > -1;
-    });
-    response.json(fullItems);
-});
 
 
 /*----------------- INIT SERVER -----------------*/

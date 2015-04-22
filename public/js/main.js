@@ -11,11 +11,9 @@ app.init = function() {
 				if(department !== undefined){
 					home.append('<span> > ' + department + '</span>');
 				}
-			var title = $('<p id="title">My Met</p>');
 			var myCollection = $('<p id="my-collection"><a href="collection.html">My Collection</a></p>');
 
 		$('body').prepend(navBar);
-		$(navBar).append(title);		
 		$(navBar).append(home);
 		$(navBar).append(myCollection);
 
@@ -28,18 +26,20 @@ app.init = function() {
 	    return results === null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
 	}
 
-	var appendImages = function(response, homepage){
-		response.forEach(function(item, index, array){
+	var appendImages = function(data, container, isHomepage){
+		
+		data.forEach(function(item, index, array){
 			// console.log(item.img_url_web);
-			if(homepage){
+			if(isHomepage){
 				var link = $('<a href="department.html#' + encodeURIComponent(item.department) + '"></a>');
 			}else{
 				var link = $('<a href="recommendations.html?main_item_id=' + item.item_id + '"></a>');	
 			}
 			var image = $('<img class="item" name="' + item.item_id + '" src="' + item.img_url_web + '"/>');
-			$('#container').append(link);
+			$(container).append(link);
 			$(link).append(image);
 		});
+
 		attachEvents();
 	}	
 
@@ -82,7 +82,7 @@ app.init = function() {
 		        	throw response.error	
 		        }else{
 					// console.log(response);
-					appendImages(response, true);
+					appendImages(response, $('#container'), true);
 		        }
 		    });
 		}
@@ -104,7 +104,7 @@ app.init = function() {
 		        	throw response.error	
 		        }else{
 					// console.log(response);
-					appendImages(response);
+					appendImages(response, $('#container'));
 		        }
 		    });			
 		}
@@ -144,8 +144,23 @@ app.init = function() {
 										  '</button>' +
 
 									  '</div>');
+
+					var similarToMain = $('<div>' +
+													'<hr>' +
+													'<h2>Similar to this item</h2>' +
+												'</div>');
+
+					var similarToCollection = $('<div>' +
+													'<hr>' +
+													'<h2>Similar to items in your collection</h2>' +
+												'</div>');
+
 					$('#container').append(mainItem);
-					appendImages(response['similar_to_collection']);
+					$('#container').append(similarToMain);
+					$('#container').append(similarToCollection);
+
+					appendImages(response['similar_to_main'], similarToMain);
+					appendImages(response['similar_to_collection'], similarToCollection);
 		        }
 		    });			
 		}
