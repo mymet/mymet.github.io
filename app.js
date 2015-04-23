@@ -111,10 +111,11 @@ app.post('/recommendations', function(request, response) {
                               // but we're actually looking for a single item
 
     var itemsSimilarToMain = getItemsSimilarToMain(mainItem[0]['similar_items'][0]);
+    itemsSimilarToMain = removeItemsAlreadySaved(itemsSimilarToMain, request.body['items_in_collection']);
 
     var itemsSimilarToCollection = '';
     if(request.body['items_in_collection'] !== undefined){
-        itemsSimilarToCollection = getItemsSimilarToCollection(request.body['items_in_collection']);    
+        itemsSimilarToCollection = getItemsSimilarToCollection(request.body['main_item'], request.body['items_in_collection']);    
     }
     
     response.json({
@@ -148,7 +149,7 @@ var removeItemsAlreadySaved = function(originalList, itemsInCollection){
     }   
 }
 
-var getItemsSimilarToMain = function(items){
+var getItemsSimilarToMain = function(items, itemsInCollection){
 
     console.log('Called getItemsSimilarToMain');
 
@@ -166,12 +167,13 @@ var getItemsSimilarToMain = function(items){
     return fullItems;
 }
 
-var getItemsSimilarToCollection = function(items){
+var getItemsSimilarToCollection = function(mainItemId, items){
 
     console.log('Called getItemsSimilarToCollection');
 
     // Grab the ids stored in the user's localStorage
     var ids = items.split(',');
+    console.log(ids);
 
     // Get the full record for each of those ids
     var fullItems = _.filter(allItems, function(item, index, array){
@@ -190,7 +192,7 @@ var getItemsSimilarToCollection = function(items){
 
             // Only add items that are not in the user's list
             if(ids.indexOf(key) < 0){
-                // If the object doesn't exist in the 'similar' list,
+                // If the object doesn't exist in the 'similar' list yet,
                 // Create a new one
                 if(similar[key] === undefined){
                     similar[key] = item.similar_items[0][key];
@@ -205,6 +207,14 @@ var getItemsSimilarToCollection = function(items){
         }
     });
     // console.log(Object.keys(similar).length);
+    // console.log(similar);
+
+    // Filter out items already in the collection — and the main one
+    for(var key in similar){
+        if(ids.indexOf(key) > -1 || key == mainItemId){
+            delete similar[key];
+        }
+    }
     // console.log(similar);
 
     // Convert to object
