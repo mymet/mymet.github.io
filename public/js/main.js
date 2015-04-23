@@ -79,9 +79,14 @@ app.init = function() {
 			if(localStorage['collection'] !== undefined){
 				// console.log(localStorage['collection'].split(',').length);
 				var savedItems = localStorage['collection'].split(',');
-				savedItems.push($(this).attr('name'));
-				// console.log(savedItems);
-				localStorage['collection'] = savedItems;
+
+				// Save only if the item is not yet in the collection
+				if(savedItems.indexOf($(this).attr('name')) < 0){
+					savedItems.push($(this).attr('name'));
+					// console.log(savedItems);
+					window.alert('Item saved to your collection');
+					localStorage['collection'] = savedItems;
+				}
 
 			// No. Just add this item
 			}else{
@@ -91,7 +96,7 @@ app.init = function() {
 			// Go back to the previous page
 			// history.go(-1);
 			// Go to the home page
-			window.location.href = '/';
+			// window.location.href = '/';
 		});
 
 		$('.remove-bt').off('click').on('click', function(){
@@ -192,12 +197,12 @@ app.init = function() {
 
 					var similarToMain = $('<div>' +
 											'<hr>' +
-											'<h2>Similar to this item</h2>' +
+											'<h2>You might also like these artworks</h2>' +
 										'</div>');
 
 					var similarToCollection = $('<div>' +
 													'<hr>' +
-													'<h2>Similar to items in your collection</h2>' +
+													'<h2>More suggestions based on the artworks in your collection</h2>' +
 												'</div>');
 
 					$('#container').append(mainItem);
@@ -234,9 +239,9 @@ app.init = function() {
 		        }else{
 					console.log(response);
 					if(response != ''){
-						$('body').append('<h3>Click on items to remove them from your collection</h3>');
+						$('body').append('<h3>Click on the items to remove them from your collection</h3>');
 					}else{
-						$('body').append('<h3>You don\'t have items in your collection</h3>');
+						$('body').append('<h3>You don\'t have any items in your collection</h3>');
 					}
 					appendImages(response, $('#container'));
 		        }
