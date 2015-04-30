@@ -10,7 +10,7 @@ app.init = function() {
 	/*--------------- SHARED FUNCTIONS AND VARS ---------------*/
 	var appendNavigation = function(department){
 		var navBar = $('<nav></nav>');
-			var home = $('<p id="home"><a href="/">home</a></p>');
+			var home = $('<p id="home"><a href="/#' + getParameterByName('page_number') + '">MY<b>MET</b> Recommends</a></p>');
 				if(department !== undefined){
 					home.append('<span> > ' + department + '</span>');
 				}
@@ -28,10 +28,10 @@ app.init = function() {
 		if(page == '/' || page == '/index.html'){
 
 			for(var i in data){
-				$('#container').append('<hr name="' + i + '"/>');				
+				$('#container').append('<hr name="' + i + '" class="page-counter"/>');				
 				data[i].forEach(function(item, index, array){
 					var div = $('<div class="item"></div>')
-					var link = $('<a href="recommendations.html?main_item_id=' + item.item_id + '"></a>');	
+					var link = $('<a href="recommendations.html?main_item_id=' + item.item_id + '&page_number=' + getCurrentPageNumber() + '"></a>');	
 					var image = $('<img name="' + item.item_id + '" src="' + item.img_url_web + '"/>');
 					$(container).append(div);
 					$(div).append(link);
@@ -65,7 +65,8 @@ app.init = function() {
 			});			
 
 		}
-
+		
+		$('.spinner').remove();
 		attachEvents();
 	}
 
@@ -139,21 +140,14 @@ app.init = function() {
 		console.log('Called loadHome');
 
 		if(!isLoadingData){
-
+			$('#container').append('<div class="spinner"><div></div></div>');
+			isLoadingData = true;			
 			console.log('Requesting more items.');
-
-			isLoadingData = true;
 			
 			var lastPage = getCurrentPageNumber();
-
 			console.log('lastPage: ' + lastPage);
 
-			if(isAppending){
-				firstPage = lastPage - 1;
-			}else{
-				firstPage = 0;
-			}
-
+			var firstPage = (isAppending) ? (firstPage = lastPage - 1) : (0);
 			console.log('>> lastPage: ' + lastPage);
 			console.log('>> firstPage: ' + firstPage);
 
@@ -169,23 +163,20 @@ app.init = function() {
 					console.log(response);
 					// Debounce
 					setTimeout(function(){
+
 						isLoadingData = false;
-						// console.log($('[name="' + getCurrentPageNumber() + '"]'));
-						if(getCurrentPageNumber() > 0){
+						if(getCurrentPageNumber() > 1){
 							$('html, body').animate({
 					            scrollTop: $('[name="' + (getCurrentPageNumber() - 1) + '"]').offset().top + 'px'
-					        }, 1000);
-							// window.scrollTo(0, $('[name="' + getCurrentPageNumber() + '"]').offset().top);
+					        }, 'fast');
 						}
 					}, 1000);
-
 					appendImages(response, $('#container'));
 		        }
 		    });
 
 		}else{
 			console.log('Call already in progress.');
-
 		}
 	}
 
