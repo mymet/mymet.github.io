@@ -28,6 +28,7 @@ app.use(function(req, res, next) {
 
 app.use('/', express.static(__dirname + '/public'));
 
+// app.get('/', function(request, repsonse))
 /*-------------------- DATA ---------------------*/
 var allItems = jf.readFileSync('data/similar_items.json');
 
@@ -40,27 +41,46 @@ allItems = _.filter(allItems, function(item, key, list){
 
 /*------------------- ROUTERS -------------------*/
 
-
 app.post('/home', function(request, response) {
     // console.log(allItems.length);
     console.log(request.body);
-    console.log('Items in the collection: ' + request.body['items_in_collection']);    
+    console.log('Items in the collection: ' + request.body['items_in_collection']);
 
-    var itemNotSaved = removeItemsAlreadySaved(allItems, request.body['items_in_collection']);
+    var itemsPerPage = 20;
+    var firstPage = parseInt(request.body['first_page']);
+    var lastPage = parseInt(request.body['last_page']);
+    console.log('Requesting items from ' + (firstPage * itemsPerPage) + ' to ' + (lastPage * itemsPerPage));
 
-    var itemsByDepartment = _.groupBy(itemNotSaved, function(item){
-        return item.department;
-    });
-    // console.log(prettyjson.render(itemsByDepartment));
-
-    var oneItemPerDepartment = _.map(itemsByDepartment, function(items, key, list){
-        // console.log(key);
-        // console.log(_.sample(items, 1));
-        return _.sample(items, 1)[0];
-    });
-    
-    response.json(oneItemPerDepartment);
+    var chunks = [];
+    for(var i = firstPage; i < lastPage; i++){
+        chunks.push(allItems.slice(i * itemsPerPage, (i + 1) * itemsPerPage));
+    }
+    // console.log(chunks);
+    response.json(chunks);
+    // response.json(allItems.slice(firstPage * itemsPerPage, lastPage * itemsPerPage));
 });
+
+
+// app.post('/home', function(request, response) {
+//     // console.log(allItems.length);
+//     console.log(request.body);
+//     console.log('Items in the collection: ' + request.body['items_in_collection']);    
+
+//     var itemNotSaved = removeItemsAlreadySaved(allItems, request.body['items_in_collection']);
+
+//     var itemsByDepartment = _.groupBy(itemNotSaved, function(item){
+//         return item.department;
+//     });
+//     // console.log(prettyjson.render(itemsByDepartment));
+
+//     var oneItemPerDepartment = _.map(itemsByDepartment, function(items, key, list){
+//         // console.log(key);
+//         // console.log(_.sample(items, 1));
+//         return _.sample(items, 1)[0];
+//     });
+    
+//     response.json(oneItemPerDepartment);
+// });
 
 app.post('/department', function(request, response) {
     console.log('Main item: ' + request.body['main_item']);

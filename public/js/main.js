@@ -4,12 +4,13 @@ var app = {};
 
 app.init = function() {
 
-	var page = window.location.pathname;	
+	var page = window.location.pathname;
+	var isLoadingData = false;
 
 	/*--------------- SHARED FUNCTIONS AND VARS ---------------*/
 	var appendNavigation = function(department){
 		var navBar = $('<nav></nav>');
-			var home = $('<p id="home"><a href="/">home</a></p>');
+			var home = $('<p id="home"><a href="/#' + getParameterByName('page_number') + '">MY<b>MET</b> Recommends</a></p>');
 				if(department !== undefined){
 					home.append('<span> > ' + department + '</span>');
 				}
@@ -23,31 +24,49 @@ app.init = function() {
 
 	var appendImages = function(data, container){
 		
-		data.forEach(function(item, index, array){
-			// console.log(item.img_url_web);
+		// Home
+		if(page == '/' || page == '/index.html'){
 
-			var div = $('<div class="item"></div>')
-
-			if(page == '/' || page == '/index.html'){
-				// Redirect to department?
-				// var link = $('<a href="department.html?main_item_id=' + item.item_id + '#' + encodeURIComponent(item.department) + '">' + item.department + '<br/></a>');
-
-				// Go straight to recommendations
-				var link = $('<a href="recommendations.html?main_item_id=' + item.item_id + '">' + item.department + '<br/></a>');	
-
-			}else if(page.indexOf('collection.html') > -1){
-				var link = $('<a class="remove-bt" href="" name="' + item.item_id + '"></a>');
-
-			}else{
-				var link = $('<a href="recommendations.html?main_item_id=' + item.item_id + '"></a>');	
+			for(var i in data){
+				$('#container').append('<hr name="' + i + '" class="page-counter"/>');				
+				data[i].forEach(function(item, index, array){
+					var div = $('<div class="item"></div>')
+					var link = $('<a href="recommendations.html?main_item_id=' + item.item_id + '&page_number=' + getCurrentPageNumber() + '"></a>');	
+					var image = $('<img name="' + item.item_id + '" src="' + item.img_url_web + '"/>');
+					$(container).append(div);
+					$(div).append(link);
+					$(link).append(image);
+				});
 			}
-			var image = $('<img name="' + item.item_id + '" src="' + item.img_url_web + '"/>');
 
-			$(container).append(div);
-			$(div).append(link);
-			$(link).append(image);
-		});
+		}else{
 
+			data.forEach(function(item, index, array){
+				// console.log(item.img_url_web);
+
+				var div = $('<div class="item"></div>')
+				
+				// 	// Redirect to department?
+				// 	// var link = $('<a href="department.html?main_item_id=' + item.item_id + '#' + encodeURIComponent(item.department) + '">' + item.department + '<br/></a>');
+
+				// Collection
+				if(page.indexOf('collection.html') > -1){
+					var link = $('<a class="remove-bt" href="" name="' + item.item_id + '"></a>');
+
+				// Recommendation
+				}else{
+					var link = $('<a href="recommendations.html?main_item_id=' + item.item_id + '"></a>');	
+				}
+				var image = $('<img name="' + item.item_id + '" src="' + item.img_url_web + '"/>');
+
+				$(container).append(div);
+				$(div).append(link);
+				$(link).append(image);
+			});			
+
+		}
+		
+		$('.spinner').remove();
 		attachEvents();
 	}
 
@@ -99,13 +118,14 @@ app.init = function() {
 			// window.location.href = '/';
 		});
 
+		// Remove items from collection
 		$('.remove-bt').off('click').on('click', function(){
 			var itemToRemove = $(this).attr('name');
 			var savedItems = localStorage['collection'].split(',');
 			var index = savedItems.indexOf(itemToRemove);
 			savedItems.splice(index, 1);
 			localStorage['collection'] = savedItems;
-		});
+		});	
 	}	
 
 	var getParameterByName = function(name) {
@@ -113,29 +133,89 @@ app.init = function() {
 	    var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
 	        results = regex.exec(location.search);
 	    return results === null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
-	}	
+	}
 
-	/*------------------------- PAGES -------------------------*/
-	// HOME
-	if(page == '/' || page == '/index.html'){
+	var loadHome = function(isAppending){
 
-		// console.log('Your code starts here!');
-		var loadHome = function(){
+		console.log('Called loadHome');
+
+		if(!isLoadingData){
+			$('#container').append('<div class="spinner"><div></div></div>');
+			isLoadingData = true;			
+			console.log('Requesting more items.');
+			
+			var lastPage = getCurrentPageNumber();
+			console.log('lastPage: ' + lastPage);
+
+			var firstPage = (isAppending) ? (firstPage = lastPage - 1) : (0);
+			console.log('>> lastPage: ' + lastPage);
+			console.log('>> firstPage: ' + firstPage);
+
 			$.post('/home', {
+				'first_page': firstPage,
+				'last_page': lastPage,
 				'items_in_collection': localStorage['collection']
 			}, function(response) {
 		        // console.log(response);
 		        if(response.error){
 		        	throw response.error	
 		        }else{
-					// console.log(response);
+					console.log(response);
+					// Debounce
+					setTimeout(function(){
+
+						isLoadingData = false;
+						if(getCurrentPageNumber() > 1){
+							$('html, body').animate({
+					            scrollTop: $('[name="' + (getCurrentPageNumber() - 1) + '"]').offset().top + 'px'
+					        }, 'fast');
+						}
+					}, 1000);
 					appendImages(response, $('#container'));
 		        }
 		    });
+
+		}else{
+			console.log('Call already in progress.');
+		}
+	}
+
+	/*------------------------- PAGES -------------------------*/
+	// HOME
+	if(page == '/' || page == '/index.html'){
+
+		var debounce;
+
+		// Infinite scroll
+		$(window).scroll(function()	{
+		    if($(window).scrollTop() == $(document).height() - $(window).height()) {
+		    	clearTimeout(debounce);
+		    	debounce = setTimeout(doneScrolling, 500); 
+				
+		    }
+		});
+
+		var doneScrolling = function(){
+			console.log('Called doneScrolling.');
+			location.hash = getCurrentPageNumber() + 1;
+	        loadHome(true);
+		}
+
+		var getCurrentPageNumber = function(){
+	    	var currentPageNumber = location.hash.substring(1, location.hash.length);
+	    	currentPageNumber = parseInt(currentPageNumber);
+	    	if(isNaN(currentPageNumber)){
+	    		console.log("Not a number. Setting to 0");
+	    		currentPageNumber = 1;
+	    		location.hash = 1;
+	    	}
+	    	return currentPageNumber;			
 		}
 		
 		appendNavigation();
-		loadHome();
+		// isAppending = false
+		// load all pages until the current one, instead of appending
+		loadHome(false);
 
 
 	// DEPARTMENT
