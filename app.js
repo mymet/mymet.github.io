@@ -46,7 +46,7 @@ app.post('/home', function(request, response) {
     console.log(request.body);
     console.log('Items in the collection: ' + request.body['items_in_collection']);
 
-    var itemsPerPage = 20;
+    var itemsPerPage = 40;
     var firstPage = parseInt(request.body['first_page']);
     var lastPage = parseInt(request.body['last_page']);
     console.log('Requesting items from ' + (firstPage * itemsPerPage) + ' to ' + (lastPage * itemsPerPage));
