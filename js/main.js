@@ -1,6 +1,15 @@
-/* Your code starts here */
-
 var app = {};
+var allItems;
+
+$.getJSON('data/similar_items.json', function(data){
+	// Filtering the ones on display AND with a thumb on the website
+	allItems = _.filter(data, function(item, key, list){
+	    return item.department != null &&
+	           item.img_url_web != null;
+	});
+	console.log(allItems);
+	app.init();
+});
 
 app.init = function() {
 
@@ -176,6 +185,194 @@ app.init = function() {
 	    return results === null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
 	}
 
+	/*------------------------- "SERVER" -------------------------*/
+	var loadServerHome = function(request, callback) {
+	    // console.log(allItems.length);
+	    console.log(request);
+	    console.log('Items in the collection: ' + request['items_in_collection']);
+
+	    var itemsPerPage = 40;
+	    var firstPage = parseInt(request['first_page']);
+	    var lastPage = parseInt(request['last_page']);
+	    console.log('Requesting items from ' + (firstPage * itemsPerPage) + ' to ' + (lastPage * itemsPerPage));
+
+	    var chunks = [];
+	    for(var i = firstPage; i < lastPage; i++){
+	        chunks.push(allItems.slice(i * itemsPerPage, (i + 1) * itemsPerPage));
+	    }
+	    // console.log(chunks);
+	    callback(chunks);
+	    // response.json(allItems.slice(firstPage * itemsPerPage, lastPage * itemsPerPage));
+	};	
+
+	var loadServerCollection = function(request, callback) {
+	    console.log('Items in the collection: ' + request['items_in_collection']);
+	    var fullItems = '';
+	    if(request['items_in_collection'] !== undefined){
+	        var ids = request['items_in_collection'].split(',');
+	        fullItems = _.filter(allItems, function(item, index, array){
+	            return ids.indexOf(item.item_id) > -1;
+	        });
+	    }
+	    callback(fullItems);            
+	}
+
+	var loadServerRecommendation = function(request, callback) {
+
+	    console.log('Main item: ' + request['main_item']);
+	    console.log('Items in the collection: ' + request['items_in_collection']);
+
+	    var mainItem = _.filter(allItems, function(item, index, array){
+	        return item.item_id == request['main_item'];
+	    });
+	    console.log(mainItem[0]); // Because underscore will return an array,
+	                              // but we're actually looking for a single item
+
+	    var itemsSimilarToMain = getItemsSimilarToMain(mainItem[0]['similar_items'][0]);
+	    itemsSimilarToMain = removeItemsAlreadySaved(itemsSimilarToMain, request['items_in_collection']);
+
+	    var itemsSimilarToCollection = '';
+	    if(request['items_in_collection'] !== undefined){
+	        itemsSimilarToCollection = getItemsSimilarToCollection(request['main_item'], request['items_in_collection']);
+	    }
+	    
+	    callback({
+	        main_item: mainItem[0],
+	        similar_to_main: itemsSimilarToMain,
+	        similar_to_collection: itemsSimilarToCollection   
+	    });
+	}	
+
+		/*------------------- FUNCTIONS -------------------*/
+
+		var removeItemsAlreadySaved = function(originalList, itemsInCollection){
+
+		    console.log('Called removeItemsAlreadySaved');
+
+		    if(itemsInCollection !== undefined){
+		        
+		        itemsInCollection = itemsInCollection.split(',');
+		        console.log(itemsInCollection);
+
+		        var filteredList = _.filter(originalList, function(item, key, list){
+		            return itemsInCollection.indexOf(item.item_id) < 0;
+		        });
+		        // console.log(departmentItems.length);
+		        return filteredList;
+
+		    }else{
+
+		        return originalList;
+		    }   
+		}
+
+		var getItemsSimilarToMain = function(items, itemsInCollection){
+
+		    console.log('Called getItemsSimilarToMain');
+
+		    // console.log(items);
+		    // console.log(Object.keys(items).length);
+		    
+		    // Get the full record for each of those ids
+		    var fullItems = _.filter(allItems, function(item, index, array){
+		        return items[item.item_id] !== undefined;
+		    });
+
+		    // console.log(fullItems);
+		    // console.log(fullItems.length);
+
+		    return fullItems;
+		}
+
+		var getItemsSimilarToCollection = function(mainItemId, items){
+
+		    console.log('Called getItemsSimilarToCollection');
+
+		    // Grab the ids stored in the user's localStorage
+		    var ids = items.split(',');
+		    console.log(ids);
+
+		    // Get the full record for each of those ids
+		    var fullItems = _.filter(allItems, function(item, index, array){
+		        return ids.indexOf(item.item_id) > -1;
+		    });
+
+		    // Creating the array of similar items
+		    var similar = {};
+
+		    // Loop through each of the selected items
+		    fullItems.forEach(function(item, index, array){
+		        // console.log(item.similar_items[0]);
+
+		        // Loop through each of their similar items
+		        for(var key in item.similar_items[0]){
+
+		            // Only add items that are not in the user's list
+		            if(ids.indexOf(key) < 0){
+		                // If the object doesn't exist in the 'similar' list yet,
+		                // Create a new one
+		                if(similar[key] === undefined){
+		                    similar[key] = item.similar_items[0][key];
+
+		                // else, check which one has greater similarity
+		                }else{
+		                    if(item.similar_items[0][key] > similar[key]){
+		                        similar[key] = item.similar_items[0][key];
+		                    }
+		                }
+		            }
+		        }
+		    });
+		    // console.log(Object.keys(similar).length);
+		    // console.log(similar);
+
+		    // Filter out items already in the collection — and the main one
+		    for(var key in similar){
+		        if(ids.indexOf(key) > -1 || key == mainItemId){
+		            delete similar[key];
+		        }
+		    }
+		    // console.log(similar);
+
+		    // Convert to object
+		    // We just need the id and the similarity index to make the ranking
+		    similar = _.map(similar, function(value, key, collection){
+		        return { item_id: key, similarity: value };
+		    });
+		    // console.log(similar);
+		    
+		    // Sort by similarity (ranking)
+		    similar = _.sortBy(similar, function(item, index, list){
+		        // console.log(item.similarity);
+		        return item.similarity;
+		    });
+		    // console.log(similar);
+		    // Reverse order
+		    similar.reverse();
+		    // Grab only the top 20
+		    similar = similar.slice(0, 20);
+		    // console.log(similar);
+		    // console.log(similar.length);
+
+		    // Now let's get rid of the similarity indexes and leave just the ids
+		    similar = _.map(similar, function(item, index, array){
+		        return item.item_id;
+		    });
+		    // console.log(similar);
+		    // console.log(similar.length);
+
+		    // At last, look for these ids into the full array
+		    // and grab the images for them!
+		    var itemsToSendBack = _.filter(allItems, function(item, index, array){
+		        // console.log(item.item_id);
+		        return similar.indexOf(item.item_id) > -1;
+		    });
+		    // console.log(itemsToSendBack.length);
+
+		    return itemsToSendBack;
+		}	
+	/*------------------------------------------------------------*/
+
 	var loadHome = function(isAppending){
 
 		console.log('Called loadHome');
@@ -190,9 +387,9 @@ app.init = function() {
 
 			var firstPage = (isAppending) ? (firstPage = lastPage - 1) : (0);
 			console.log('>> lastPage: ' + lastPage);
-			console.log('>> firstPage: ' + firstPage);
+			console.log('>> firstPage: ' + firstPage);	
 
-			$.post('/home', {
+			loadServerHome({
 				'first_page': firstPage,
 				'last_page': lastPage,
 				'items_in_collection': localStorage['collection']
@@ -226,10 +423,7 @@ app.init = function() {
 	// HOME
 	if(page == '/' || page == '/index.html'){
 
-		console.log('home');
-
 		var debounce;
-
 		// Infinite scroll
 		$(window).scroll(function()	{
 			// console.log($(window).scrollTop() + '/' + ($(document).height() - $(window).height()));
@@ -261,55 +455,14 @@ app.init = function() {
 		appendNavigation();
 		// isAppending = false
 		// load all pages until the current one, instead of appending
-		loadHome(false);
-
-
-	// DEPARTMENT
-	}else if(page.indexOf('department.html') > -1){
-
-		var loadDepartment = function(){
-			// console.log(location.hash.substring(1));
-			$.post('/department', {
-				'main_item': mainItemId,
-				'department': department,
-				'items_in_collection': localStorage['collection']
-			}, function(response) {
-		        // console.log(response);
-		        if(response.error){
-		        	throw response.error	
-		        }else{
-					console.log(response);
-
-					var mainItem = $('<div class="main"></div>');
-
-					var itemsFromDepartment = $('<div>' +
-													'<hr>' +
-													'<h2>Also from ' + department + '</h2>' +
-												'</div>');
-
-					$('#container').append(mainItem);
-					$('#container').append(itemsFromDepartment);
-
-					appendMainItem(response['main_item'], mainItem);
-					appendImages(response['department_items'], itemsFromDepartment);
-		        }
-		    });			
-		}
-
-		var department = decodeURIComponent(location.hash.substring(1));
-		appendNavigation(department);
-		var mainItemId = getParameterByName('main_item_id');
-		console.log(mainItemId);		
-
-		loadDepartment();
-		
+		loadHome(false);	
 
 	// RECOMMENDATIONS
 	}else if(page.indexOf('recommendations.html') > -1){
 
 		var loadRecommendations = function(){
 			// console.log(location.hash.substring(1));
-			$.post('/recommendations', {
+			loadServerRecommendation({
 				'main_item': mainItemId,
 				'items_in_collection': localStorage['collection']
 			}, function(response) {
@@ -356,7 +509,7 @@ app.init = function() {
 
 		var loadCollection = function(){
 			// console.log(location.hash.substring(1));
-			$.post('/collection', {
+			loadServerCollection({
 				'items_in_collection': localStorage['collection']
 			}, function(response) {
 		        // console.log(response);
@@ -378,5 +531,3 @@ app.init = function() {
 		loadCollection();
 	}
 };
-
-app.init();
