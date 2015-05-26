@@ -194,7 +194,7 @@ app.init = function() {
 					setTimeout(function(){
 
 						isLoadingData = false;
-						if(getCurrentPageNumber() > 1){
+						if(getCurrentPageNumber() > 1 && response.length > 1){
 							console.log(getCurrentPageNumber());
 							$('html, body').animate({
 					            scrollTop: $('[name="' + getCurrentPageNumber() + '"]').offset().top + 'px'
