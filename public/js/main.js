@@ -27,8 +27,11 @@ app.init = function() {
 		// Home
 		if(page == '/' || page == '/index.html'){
 
+			// console.log(data);
+
 			for(var i in data){
-				$('#container').append('<hr name="' + i + '" class="page-counter"/>');				
+				var hrName = (data.length > 1) ? (parseInt(i) + 1) : (getCurrentPageNumber());
+				$('#container').append('<hr name="' + hrName + '" class="page-counter"/>');				
 				data[i].forEach(function(item, index, array){
 					var div = $('<div class="item"></div>')
 					var link = $('<a href="recommendations.html?main_item_id=' + item.item_id + '&page_number=' + getCurrentPageNumber() + '"></a>');	
@@ -160,14 +163,15 @@ app.init = function() {
 		        if(response.error){
 		        	throw response.error	
 		        }else{
-					console.log(response);
+					// console.log(response);
 					// Debounce
 					setTimeout(function(){
 
 						isLoadingData = false;
 						if(getCurrentPageNumber() > 1){
+							console.log(getCurrentPageNumber());
 							$('html, body').animate({
-					            scrollTop: $('[name="' + (getCurrentPageNumber() - 1) + '"]').offset().top + 'px'
+					            scrollTop: $('[name="' + getCurrentPageNumber() + '"]').offset().top + 'px'
 					        }, 'fast');
 						}
 					}, 1000);
@@ -184,11 +188,15 @@ app.init = function() {
 	// HOME
 	if(page == '/' || page == '/index.html'){
 
+		console.log('home');
+
 		var debounce;
 
 		// Infinite scroll
 		$(window).scroll(function()	{
-		    if($(window).scrollTop() == $(document).height() - $(window).height()) {
+			// console.log($(window).scrollTop() + '/' + ($(document).height() - $(window).height()));
+		    if($(window).scrollTop() >= $(document).height() - $(window).height() - 20) {
+		    	// console.log('BUMP!');
 		    	clearTimeout(debounce);
 		    	debounce = setTimeout(doneScrolling, 500); 
 				
