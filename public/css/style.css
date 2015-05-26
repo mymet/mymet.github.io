@@ -9,7 +9,8 @@ button{
 }
 
 body{
-	font-family: Helvetica, Arial, Sans-serif;
+	/*font-family: Helvetica, Arial, Sans-serif;*/
+	font-family: Georgia,"Times New Roman";
 	background-color: #131313;
 	color: white;
 }
@@ -17,7 +18,7 @@ body{
 nav{
 	display: inline-block;
 	width: 100%;
-	padding: 0 20px;
+	padding: 0;
 	background: rgb(150, 138, 111);
 	font-family: Georgia,"Times New Roman"
 }
@@ -28,22 +29,28 @@ nav{
 	nav a:hover{
 		color: white;
 		outline: 0;
+		text-decoration: none;
 	}
 
 	nav #home{
 		display: inline-block;
 		float: left;
+		border: 1px solid white;
+		padding: 5px;
+		margin: 10px 0 10px 20px;
+		vertical-align: baseline;
 	}
 
-	nav #about{
-		display: inline-block;
-		float: right;
-		margin-right: 20px;
-	}
-
+	nav #about,
 	nav #my-collection{
 		display: inline-block;
+		vertical-align: baseline;
 		float: right;
+		padding: 5px;
+		margin: 10px 20px 10px 0;
+		font-size: 13px;
+		font-weight: bold;
+		font-family: Helvetica, Arial, Sans-serif;
 	}
 
 
@@ -124,9 +131,10 @@ div#container{
 		background-color: rgb(150, 138, 111);
 		color: #131313;
 		padding: 10px;
-		margin-bottom: 10px;
+		margin: 10px 0;
 		font-size: 13px;
 		border-radius: 5px;
+		font-weight: bold;
 	}
 
 	div.pop-up{

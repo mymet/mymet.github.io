@@ -10,7 +10,7 @@ app.init = function() {
 	/*--------------- SHARED FUNCTIONS AND VARS ---------------*/
 	var appendNavigation = function(department){
 		var navBar = $('<nav></nav>');
-			var home = $('<p id="home"><a href="/#' + getParameterByName('page_number') + '">MY<b>MET</b> Recommends</a></p>');
+			var home = $('<p id="home"><a href="/#' + getParameterByName('page_number') + '">My<b>MET</b> Recommends</a></p>');
 				if(department !== undefined){
 					home.append('<span> > ' + department + '</span>');
 				}
@@ -56,7 +56,7 @@ app.init = function() {
 
 				// Collection
 				if(page.indexOf('collection.html') > -1){
-					var link = $('<a class="remove-bt" href="" name="' + item.item_id + '"></a>');
+					var link = $('<a class="remove-bt" name="' + item.item_id + '"></a>');
 
 				// Recommendation
 				}else{
@@ -106,32 +106,21 @@ app.init = function() {
 
 				// Save only if the item is not yet in the collection
 				if(savedItems.indexOf($(this).attr('name')) < 0){
+
+					createPopUp('Item saved to your collection.');
+
 					savedItems.push($(this).attr('name'));
 					// console.log(savedItems);
-					var popUp = $('<div class="pop-up">Item saved to your collection</div>');
-					$(popUp).appendTo('body')
-							.animate({
-					            top: ($(window).height() / 2) + 'px'
-					        },
-					        'fast',
-					        function(){
-						        setTimeout(function(){
-						        	console.log('finished');
-						        	$(popUp).animate({
-						        		top: '100%'	
-						        	}, 'fast', function(){
-						        		$(popUp).remove();
-						        	});
-						        }, 2000);
-					        });
-
 					// window.alert('Item saved to your collection');
 					localStorage['collection'] = savedItems;
+				}else{
+					createPopUp('This item has already been saved to your collection.');
 				}
 
 			// No. Just add this item
 			}else{
 				localStorage['collection'] = $(this).attr('name');
+				createPopUp('Item saved to your collection.');
 			}
 
 			// Go back to the previous page
@@ -142,11 +131,15 @@ app.init = function() {
 
 		// Remove items from collection
 		$('.remove-bt').off('click').on('click', function(){
+
+			createPopUp('Item removed from your collection.');
+
 			var itemToRemove = $(this).attr('name');
 			var savedItems = localStorage['collection'].split(',');
 			var index = savedItems.indexOf(itemToRemove);
 			savedItems.splice(index, 1);
 			localStorage['collection'] = savedItems;
+			$(this).remove();
 		});	
 
 		$('.item').find('img').off('mouseenter').on('mouseenter', function(){
@@ -156,6 +149,25 @@ app.init = function() {
 			$(this).removeClass('selected');
 		});		
 	}	
+
+	var createPopUp = function(message){
+		var popUp = $('<div class="pop-up">' + message + '</div>');
+		$(popUp).appendTo('body')
+				.animate({
+		            top: ($(window).height() / 2) + 'px'
+		        },
+		        300,
+		        function(){
+			        setTimeout(function(){
+			        	console.log('finished');
+			        	$(popUp).animate({
+			        		top: '100%'	
+			        	}, 300, function(){
+			        		$(popUp).remove();
+			        	});
+			        }, 2000);
+		        });
+	}
 
 	var getParameterByName = function(name) {
 	    name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
