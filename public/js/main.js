@@ -15,10 +15,12 @@ app.init = function() {
 					home.append('<span> > ' + department + '</span>');
 				}
 			var myCollection = $('<p id="my-collection"><a href="collection.html">My Collection</a></p>');
+			var about = $('<p id="about"><a href="about.html">About</a></p>');
 
 		$('body').prepend(navBar);
-		$(navBar).append(home);
-		$(navBar).append(myCollection);
+		$(navBar).append(home)
+				 .append(myCollection)
+				 .append(about);
 
 	}
 
@@ -84,7 +86,7 @@ app.init = function() {
 							  '<button ' +
 							  	'class="add-bt"' +
 							  	'name="' + data.item_id + '">' +
-							  	'Add' + 
+							  	'Add to Collection' + 
 							  '</button>');
 
 		$(container).append(mainContent);
@@ -106,7 +108,24 @@ app.init = function() {
 				if(savedItems.indexOf($(this).attr('name')) < 0){
 					savedItems.push($(this).attr('name'));
 					// console.log(savedItems);
-					window.alert('Item saved to your collection');
+					var popUp = $('<div class="pop-up">Item saved to your collection</div>');
+					$(popUp).appendTo('body')
+							.animate({
+					            top: ($(window).height() / 2) + 'px'
+					        },
+					        'fast',
+					        function(){
+						        setTimeout(function(){
+						        	console.log('finished');
+						        	$(popUp).animate({
+						        		top: '100%'	
+						        	}, 'fast', function(){
+						        		$(popUp).remove();
+						        	});
+						        }, 2000);
+					        });
+
+					// window.alert('Item saved to your collection');
 					localStorage['collection'] = savedItems;
 				}
 
@@ -129,6 +148,13 @@ app.init = function() {
 			savedItems.splice(index, 1);
 			localStorage['collection'] = savedItems;
 		});	
+
+		$('.item').find('img').off('mouseenter').on('mouseenter', function(){
+			$(this).addClass('selected');
+		});
+		$('.item').find('img').off('mouseleave').on('mouseleave', function(){
+			$(this).removeClass('selected');
+		});		
 	}	
 
 	var getParameterByName = function(name) {
@@ -284,12 +310,12 @@ app.init = function() {
 					var mainItem = $('<div class="main"></div>');
 
 					var similarToMain = $('<div>' +
-											'<hr>' +
-											'<h2>You might also like these artworks</h2>' +
+											'<hr class="recommendation">' +
+											'<h2>You might also be interested in these artworks</h2>' +
 										'</div>');
 
 					var similarToCollection = $('<div>' +
-													'<hr>' +
+													'<hr class="recommendation">' +
 													'<h2>More suggestions based on the artworks in your collection</h2>' +
 												'</div>');
 
@@ -327,9 +353,9 @@ app.init = function() {
 		        }else{
 					console.log(response);
 					if(response != ''){
-						$('body').append('<h3>Click on the items to remove them from your collection</h3>');
+						$('body').append('<h2>Click on the items to remove them from your collection</h3>');
 					}else{
-						$('body').append('<h3>You don\'t have any items in your collection</h3>');
+						$('body').append('<h2>You don\'t have any items in your collection</h3>');
 					}
 					appendImages(response, $('#container'));
 		        }
