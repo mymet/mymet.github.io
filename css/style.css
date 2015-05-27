@@ -362,5 +362,5 @@ div#printable{
 
 		div#printable div#embed_map_here,
 		div#printable div#embed_map_here svg{
-			height: 100%;
+			height: 600px;
 		}

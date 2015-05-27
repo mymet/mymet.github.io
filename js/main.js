@@ -221,7 +221,7 @@ app.init = function() {
     	var title = $('<h1>My<b>MET</b> Recommends</h1>');
     	var images = $(data).find('.item').clone();
     	var map = $(data).find('#embed_map_here').clone();
-    	
+
     	$(printContainer).append(map)
     					 .append(logo)
     					 .append('<br/>')
@@ -237,13 +237,13 @@ app.init = function() {
         var mywindow = window.open('', 'my div', 'height=400,width=600');
         mywindow.document.write('<html><head>');
         mywindow.document.write('<link rel="stylesheet" href="css/style.css" type="text/css" />');
-        mywindow.document.write('</head><body ><div id="printable">');
+        mywindow.document.write('</head><body><div id="printable">');
         mywindow.document.write(content);
         mywindow.document.write('</div></body></html>');
 
     	setTimeout(function(){
     		$('.spinner').remove();
-    		mywindow.document.write('<script>window.print()</script>');
+    		// mywindow.document.write('<script>window.print()</script>');
     	}, 2000);
 
         // mywindow.print();
@@ -632,5 +632,10 @@ app.init = function() {
 		
 		appendNavigation();
 		loadCollection();
+
+	// ABOUT
+	}else if(page.indexOf('about.html') > -1){
+		
+		appendNavigation();
 	}
 };
