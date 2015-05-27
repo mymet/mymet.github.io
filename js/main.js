@@ -1,14 +1,16 @@
 var app = {};
 var allItems;
 
-$.getJSON('data/similar_items.json', function(data){
-	// Filtering the ones on display AND with a thumb on the website
-	allItems = _.filter(data, function(item, key, list){
-	    return item.department != null &&
-	           item.img_url_web != null;
+$( document ).ready(function() {
+	$.getJSON('data/similar_items.json', function(data){
+		// Filtering the ones on display AND with a thumb on the website
+		allItems = _.filter(data, function(item, key, list){
+		    return item.department != null &&
+		           item.img_url_web != null;
+		});
+		// console.log(allItems);
+		app.init();
 	});
-	console.log(allItems);
-	app.init();
 });
 
 app.init = function() {
@@ -19,7 +21,7 @@ app.init = function() {
 	/*--------------- SHARED FUNCTIONS AND VARS ---------------*/
 	var appendNavigation = function(department){
 		var navBar = $('<nav></nav>');
-			var home = $('<p id="home"><a href="/#' + getParameterByName('page_number') + '">My<b>MET</b> Recommends</a></p>');
+			var home = $('<p id="home"><a href="/gallery.html#' + getParameterByName('page_number') + '">My<b>MET</b> Recommends</a></p>');
 				if(department !== undefined){
 					home.append('<span> > ' + department + '</span>');
 				}
@@ -34,9 +36,11 @@ app.init = function() {
 	}
 
 	var appendImages = function(data, container){
+
+		console.log('Called append images for ' + page);
 		
-		// Home
-		if(page == '/' || page == '/index.html'){
+		// Gallery
+		if(page.indexOf('/gallery.html') > -1){
 
 			// console.log(data);
 
@@ -53,7 +57,7 @@ app.init = function() {
 				});
 			}
 
-		}else{
+		}else if(data.length > 0){
 
 			data.forEach(function(item, index, array){
 				// console.log(item.img_url_web);
@@ -76,8 +80,15 @@ app.init = function() {
 				$(container).append(div);
 				$(div).append(link);
 				$(link).append(image);
-			});			
+			});
 
+			if(page.indexOf('collection.html') > -1){
+				$('#container').prepend('<h2>Click on the items to remove them from your collection</h2>');
+				$('#container').append('<br/><button id="map-bt">Create Map</button>');
+			}
+
+		}else{
+			$('body').append('<h2>You don\'t have any items in your collection</h2>');			
 		}
 		
 		$('.spinner').remove();
@@ -150,6 +161,22 @@ app.init = function() {
 			localStorage['collection'] = savedItems;
 			$(this).remove();
 		});	
+
+		$('#map-bt').off('click').on('click', function(){
+
+			var mapDiv = $('<div id="embed_map_here"></div>')
+						 .appendTo('#container');
+
+			var embed1 = $(mapDiv).metPathfinder({name : "embed1"}).data("metPathfinder");
+	   
+	        embed1.setupMap(function(){ 
+				embed1.options.poi_set[0] =  {galnum: "356", type : "start"};
+				embed1.options.poi_set[1] =  {galnum: "350", type : "poi"};
+				embed1.options.poi_set[2] =  {galnum: "162", type : "poi"};
+				embed1.options.poi_set[3] =  {galnum: "353", type : "poi"};
+				embed1.pathIt();
+	        });
+		});
 
 		$('.item').find('img').off('mouseenter').on('mouseenter', function(){
 			$(this).addClass('selected');
@@ -423,6 +450,21 @@ app.init = function() {
 	// HOME
 	if(page == '/' || page == '/index.html'){
 
+		console.log('Loaded index');
+
+		function getRandomInt(min, max) {
+		    return Math.floor(Math.random() * (max - min + 1)) + min;
+		}
+
+		// var random = Math.floor(Math.random()*14);
+		var random = getRandomInt(0, allItems.length);
+		console.log(random);
+		console.log(allItems[random]['img_url_big']);
+		$('#bg').css('background-image', 'url("' + allItems[random]['img_url_web'] + '")');
+
+	// Gallery
+	}else if(page.indexOf('gallery.html') > -1){
+
 		var debounce;
 		// Infinite scroll
 		$(window).scroll(function()	{
@@ -517,11 +559,6 @@ app.init = function() {
 		        	throw response.error	
 		        }else{
 					console.log(response);
-					if(response != ''){
-						$('body').append('<h2>Click on the items to remove them from your collection</h3>');
-					}else{
-						$('body').append('<h2>You don\'t have any items in your collection</h3>');
-					}
 					appendImages(response, $('#container'));
 		        }
 		    });

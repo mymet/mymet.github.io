@@ -8,6 +8,14 @@ button{
 	outline: none;
 }
 
+html, body{
+	height: 100%;
+	width: 100%;
+	margin: 0;
+	padding: 0;
+	border: 0;	
+}
+
 body{
 	/*font-family: Helvetica, Arial, Sans-serif;*/
 	font-family: Georgia,"Times New Roman";
@@ -54,8 +62,50 @@ nav{
 		font-family: Helvetica, Arial, Sans-serif;
 	}
 
-
 /*-------------------- HOME --------------------*/
+
+div#bg{
+	height: 100%;
+	width: 100%;
+	margin: 0;
+	padding: 0;
+	border: 0;
+	background-size: cover;
+	background-position: center;
+	/*background-image: url*/	
+}
+
+div#logo{
+	position: absolute;
+	top: calc(50% - 210px);
+	left: calc(50% - 400px);
+	width: 800px;
+	height: 420px;
+	/*border: 16px solid rgb(110, 42, 231);*/
+	border: none;
+	background-color: rgba(150, 138, 111, 0.85);
+	cursor: default;
+	color: #131313;
+	border-radius: 20px;
+	text-align: center;
+	padding: 20px;
+}
+
+	div#logo img{
+		width: 200px;
+		margin-bottom: 10px;
+	}
+
+	div#logo #title{
+		display: inline-block;
+		border: 4px solid #131313;
+		padding: 10px;
+		margin: 0;
+		font-weight: normal;
+		font-size: 48px;
+	}
+
+/*------------------- GALLERY ------------------*/
 
 div#container{
 	text-align: center;
@@ -127,7 +177,7 @@ div#container{
 		color: rgb(150, 138, 111);
 	}
 
-	button.add-bt{
+	button{
 		border: none;
 		background-color: rgb(150, 138, 111);
 		color: #131313;
@@ -152,6 +202,10 @@ div#container{
 		font-family: Georgia,"Times New Roman"
 	}
 
+/*----------------- COLLECTION -----------------*/	
+div#embed_map_here svg{
+	position: static;
+}
 
 /*------------------- LOADER -------------------*/
 
