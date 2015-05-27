@@ -80,11 +80,18 @@ app.init = function() {
 				$(container).append(div);
 				$(div).append(link);
 				$(link).append(image);
+
+				if(page.indexOf('collection.html') > -1){
+					$(image).attr('gallery_number', item['gallery_number']);
+					$(link).append('<p class="description"><b>' + item['item_title'] + '</b><br/>' +
+								   'Gallery ' + item['gallery_number'] +
+								   '</p>')
+				}				
 			});
 
 			if(page.indexOf('collection.html') > -1){
 				$('#container').prepend('<h2>Click on the items to remove them from your collection</h2>');
-				$('#container').append('<br/><button id="map-bt">Create Map</button>');
+				$('#container').append('<br/><button id="map-bt">Create Map</button><br/>');
 			}
 
 		}else{
@@ -164,18 +171,33 @@ app.init = function() {
 
 		$('#map-bt').off('click').on('click', function(){
 
-			var mapDiv = $('<div id="embed_map_here"></div>')
-						 .appendTo('#container');
+			if($('#embed_map_here').length == 0){
 
-			var embed1 = $(mapDiv).metPathfinder({name : "embed1"}).data("metPathfinder");
-	   
-	        embed1.setupMap(function(){ 
-				embed1.options.poi_set[0] =  {galnum: "356", type : "start"};
-				embed1.options.poi_set[1] =  {galnum: "350", type : "poi"};
-				embed1.options.poi_set[2] =  {galnum: "162", type : "poi"};
-				embed1.options.poi_set[3] =  {galnum: "353", type : "poi"};
-				embed1.pathIt();
-	        });
+				var mapDiv = $('<div id="embed_map_here"></div>')
+							 .appendTo('#container');
+
+				var embed1 = $(mapDiv).metPathfinder({name : "embed1"}).data("metPathfinder");
+		   
+		        embed1.setupMap(function(){
+
+					embed1.options.poi_set[0] =  {galnum: "The Great Hall", type : "start"};
+
+					$.each($('.item img'), function(index, item){
+						console.log($(item).attr('gallery_number'));
+						embed1.options.poi_set[parseInt(index + 1)] =  {galnum: parseInt($(item).attr('gallery_number')), type : "poi"};					
+					});
+
+					embed1.pathIt();
+		        });
+
+		        $('#container').append('<br/><button id="print-bt">Print</button><br/>');
+
+		        attachEvents();
+		    }
+		});
+
+		$('#print-bt').off('click').on('click', function(){
+			printElement('#container');
 		});
 
 		$('.item').find('img').off('mouseenter').on('mouseenter', function(){
@@ -184,7 +206,51 @@ app.init = function() {
 		$('.item').find('img').off('mouseleave').on('mouseleave', function(){
 			$(this).removeClass('selected');
 		});		
-	}	
+	}
+
+    function printElement(elem){
+    	// console.log(elem);
+        printPopUp(elem);
+    }
+
+    function printPopUp(data){
+    	// console.log(data);
+    	var printContainer = $('<div id="printable"></div>');
+
+    	var logo = $('<img id="logo" src="img/met_logo.png" />');
+    	var title = $('<h1>My<b>MET</b> Recommends</h1>');
+    	var images = $(data).find('.item').clone();
+    	var map = $(data).find('#embed_map_here').clone();
+    	
+    	$(printContainer).append(map)
+    					 .append(logo)
+    					 .append('<br/>')
+    					 .append(title)
+    					 .append('<br/>')
+    					 .append(images);
+
+    	var content = $(printContainer).html();
+
+		$('#container').append('<div class="spinner"><div></div></div>');
+    	$("html, body").animate({ scrollTop: $(document).height() }, 500);
+
+        var mywindow = window.open('', 'my div', 'height=400,width=600');
+        mywindow.document.write('<html><head>');
+        mywindow.document.write('<link rel="stylesheet" href="css/style.css" type="text/css" />');
+        mywindow.document.write('</head><body ><div id="printable">');
+        mywindow.document.write(content);
+        mywindow.document.write('</div></body></html>');
+
+    	setTimeout(function(){
+    		$('.spinner').remove();
+    		mywindow.document.write('<script>window.print()</script>');
+    	}, 2000);
+
+        // mywindow.print();
+        // mywindow.close();
+
+        // return true;
+    }		
 
 	var createPopUp = function(message){
 		var popUp = $('<div class="pop-up">' + message + '</div>');
