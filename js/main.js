@@ -526,7 +526,7 @@ app.init = function() {
 		var random = getRandomInt(0, allItems.length);
 		console.log(random);
 		console.log(allItems[random]['img_url_big']);
-		$('#bg').css('background-image', 'url("' + allItems[random]['img_url_web'] + '")');
+		$('#bg').css('background-image', 'url("' + allItems[random]['img_url_big'] + '")');
 
 	// Gallery
 	}else if(page.indexOf('gallery.html') > -1){

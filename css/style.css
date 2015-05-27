@@ -71,7 +71,7 @@ div#bg{
 	padding: 0;
 	border: 0;
 	background-size: cover;
-	background-position: center;
+	background-position: top;
 	/*background-image: url*/	
 }
 
@@ -80,7 +80,7 @@ div#logo{
 	top: calc(50% - 210px);
 	left: calc(50% - 400px);
 	width: 800px;
-	height: 420px;
+	/*height: 420px;*/
 	/*border: 16px solid rgb(110, 42, 231);*/
 	border: none;
 	background-color: rgba(150, 138, 111, 0.85);
@@ -104,6 +104,32 @@ div#logo{
 		font-weight: normal;
 		font-size: 48px;
 	}
+
+	div#logo #tagline{
+		font-size: 21px;
+	}	
+
+	div#logo a{
+		display: inline-block;
+		background-color: #131313;
+		color: rgb(150, 138, 111);
+		padding: 10px;
+		margin: 0;
+		font-weight: normal;
+		font-size: 16px;
+		min-width: 120px;
+		font-family: Helvetica, Arial, Sans-serif;
+		font-weight: bold;
+		border-radius: 5px;
+	}
+
+	div#logo a#enter-bt:link,
+	div#logo a#enter-bt:visited,
+	div#logo a#enter-bt:active,
+	div#logo a#enter-bt:hover{
+		outline: none;
+		text-decoration: none;
+	}		
 
 /*------------------- GALLERY ------------------*/
 
@@ -172,7 +198,7 @@ div#container{
 
 	h2{
 		text-align: center;
-		font-size: 16px;
+		font-size: 21px;
 		font-weight: normal;
 		color: rgb(150, 138, 111);
 	}
