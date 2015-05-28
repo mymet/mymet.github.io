@@ -243,7 +243,7 @@ app.init = function() {
 
     	setTimeout(function(){
     		$('.spinner').remove();
-    		// mywindow.document.write('<script>window.print()</script>');
+    		mywindow.document.write('<script>window.print()</script>');
     	}, 2000);
 
         // mywindow.print();
