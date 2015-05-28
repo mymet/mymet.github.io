@@ -523,10 +523,10 @@ app.init = function() {
 		}
 
 		// var random = Math.floor(Math.random()*14);
-		var random = getRandomInt(0, allItems.length);
+		var random = getRandomInt(0, 8);
 		console.log(random);
-		console.log(allItems[random]['img_url_big']);
-		$('#bg').css('background-image', 'url("' + allItems[random]['img_url_big'] + '")');
+		// console.log(allItems[random]['img_url_big']);
+		$('#bg').css('background-image', 'url("img/home_' + random + '.jpg")');
 
 	// Gallery
 	}else if(page.indexOf('gallery.html') > -1){
