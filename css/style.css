@@ -52,6 +52,27 @@ nav{
 		vertical-align: baseline;
 	}
 
+	nav #gallery-bt{
+		display: inline-block;
+		float: left;
+		margin: 0 0 0 20px;
+		height: 50px;
+		vertical-align: baseline;
+		font-family: Helvetica, Arial, Sans-serif;
+		padding: 5px;
+		font-size: 13px;
+		line-height: 40px;
+		letter-spacing: 1px;
+	}
+	nav #gallery-bt img{
+		float: left;
+		margin-top: 8px;
+	}
+	nav #gallery-bt a{
+		display: inline-block;
+		vertical-align: middle;
+	}
+
 	nav #about,
 	nav #my-collection{
 		display: inline-block;

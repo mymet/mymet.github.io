@@ -21,16 +21,21 @@ app.init = function() {
 	/*--------------- SHARED FUNCTIONS AND VARS ---------------*/
 	var appendNavigation = function(department){
 		var navBar = $('<nav></nav>');
-			var home = $('<p id="home"><a href="/gallery.html#' + getParameterByName('page_number') + '">My<b>MET</b> Recommends</a></p>');
-				if(department !== undefined){
-					home.append('<span> > ' + department + '</span>');
-				}
+			var home = $('<p id="home"><a href="/">My<b>MET</b> Recommends</a></p>');
+				// if(department !== undefined){
+				// 	home.append('<span> > ' + department + '</span>');
+				// }			
 			var myCollection = $('<p id="my-collection"><a href="collection.html">My Collection</a></p>');
 			var about = $('<p id="about"><a href="about.html">About</a></p>');
 
 		$('body').prepend(navBar);
-		$(navBar).append(home)
-				 .append(myCollection)
+		$(navBar).append(home);
+		
+		if(page.indexOf('gallery.html') == -1){
+			var gallery = $('<p id="gallery-bt"><img src="img/back_bt.png" /><a href="/gallery.html#' + getParameterByName('page_number') + '">Back to Gallery</a></p>');					
+			$(navBar).append(gallery);
+		}		
+		$(navBar).append(myCollection)
 				 .append(about);
 
 	}
