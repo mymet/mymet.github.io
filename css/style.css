@@ -217,6 +217,11 @@ div#container{
 	div#container .main{
 		width: 100%;
 		display: block;
+		margin-top: 10px;
+	}
+
+	div#container .main img{
+		max-height: 70vh;
 	}
 
 	div#container hr.recommendation{
@@ -465,7 +470,7 @@ div#embed_map_here{
 		width: 100%;
 		height: auto;
 		text-align: center;
-		padding: 0;
+		padding: 5px 5px 0 5px;
 		margin: 0;
 		border: 0;
 		background: rgb(150, 138, 111);
@@ -494,14 +499,65 @@ div#embed_map_here{
 			height: 16px;
 		}		
 
-	/*
+	
 	div#container .item img{
-		height: calc(30vh - 100px);
+		height: calc(30vh - 50px);
+		max-width: 100%;
+		border-width: 6px;
 	}
 
 	div#container hr.page-counter{
-		height: calc(30vh - 100px);
-	}*/	
+		height: calc(30vh - 50px);
+	}	
+
+	div#container .main img{
+		max-width: 100%;
+		max-height: 50vh;
+	}
+
+	h2{
+		font-size: 13px;
+	}
+
+	button{
+		padding: 5px;
+		margin: 10px 0;
+		font-size: 11px;
+		border-radius: 3px;
+		font-weight: bold;
+		min-width: 80px;
+	}
+	
+	div#about-page div#about-container{
+		width: 100%;
+	}
+
+div#container div.item a.met-bt{
+	height: 20px;
+	border-radius: 3px;
+	padding: 0 5px;
+	font-size: 9px;
+	line-height: 20px;
+}
+
+div#container div.item div.remove-bt{
+	width: 20px;
+	height: 20px;
+}
+
+	div#container div.item div.remove-bt img{
+		display: block;
+		width: 20px;
+		height: 20px;
+	}	
+
+	div#container div.item p.description{
+		font-size: 9px;
+		line-height: 11px;
+		padding: 0 6px;
+		margin: 0;
+		max-width: 80px;
+	}	
 }
 
 /*----------------- PRINT -----------------*/
