@@ -407,13 +407,30 @@ div#embed_map_here{
 /*----------------- RESPONSIVE -----------------*/
 /* TABLETS */
 @media screen and (max-width: 885px) {
-	/* div#container .item {
-		width: calc(33% - 20px);
-	}*/
+
+	div#logo{
+		position: absolute;
+		top: calc(50% - 250px);
+		left: calc(50% - 250px);
+		width: 500px;
+	}
+
+		div#logo #title{
+			font-size: 40px;
+		}
+
+		div#logo #tagline{
+			font-size: 18px;
+		}
 
 	div#container .item img{
-		/*height: calc(30vh - 100px);*/
+		height: calc(30vh - 100px);
 	}
+
+	div#container hr.page-counter{
+		height: calc(30vh - 100px);
+	}	
+
 }
 
 /* MOBILE */
@@ -428,7 +445,7 @@ div#embed_map_here{
 	}	
 }
 
-/*----------------- RESPONSIVE -----------------*/
+/*----------------- PRINT -----------------*/
 
 div#printable{
 	text-align: center;
