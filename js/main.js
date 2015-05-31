@@ -74,7 +74,7 @@ app.init = function() {
 
 				// Collection
 				if(page.indexOf('collection.html') > -1){
-					var link = $('<a class="remove-bt" name="' + item.item_id + '"></a>');
+					var link = $('<a class="collection-bt" name="' + item.item_id + '"></a>');				
 
 				// Recommendation
 				}else{
@@ -90,7 +90,8 @@ app.init = function() {
 					$(image).attr('gallery_number', item['gallery_number']);
 					$(link).append('<p class="description"><b>' + item['item_title'] + '</b><br/>' +
 								   'Gallery ' + item['gallery_number'] +
-								   '</p>')
+								   '</p>');
+		
 				}				
 			});
 
@@ -161,18 +162,50 @@ app.init = function() {
 			// window.location.href = '/';
 		});
 
+		if(page.indexOf('collection.html') > -1){
+			// console.log
+			$('.item').find('img').css('cursor', 'default');
+		}
+
 		// Remove items from collection
-		$('.remove-bt').off('click').on('click', function(){
+		$('.collection-bt').off('mouseenter').on('mouseenter', function(e){
 
-			createPopUp('Item removed from your collection.');
+			var parentDiv = $(this).parent();
+			var closeBtPosition = {
+				top: $(parentDiv).offset().top + 16,
+				left: $(parentDiv).offset().left + $(parentDiv).find('img').width() - 30
+			}
+			// console.log(closeBtPosition);
+			var closeBt = $('<div name="'+$(this).attr('name')+'" class="remove-bt"><img src="img/close_bt.png" style="cursor:pointer"/></div>')
+							.css({
+								top: closeBtPosition.top,
+								left: closeBtPosition.left
+							})
+							.off('click').on('click', function(){
 
-			var itemToRemove = $(this).attr('name');
-			var savedItems = localStorage['collection'].split(',');
-			var index = savedItems.indexOf(itemToRemove);
-			savedItems.splice(index, 1);
-			localStorage['collection'] = savedItems;
-			$(this).remove();
-		});	
+								createPopUp('Item removed from your collection.');
+
+								var itemToRemove = $(this).attr('name');
+								var savedItems = localStorage['collection'].split(',');
+								var index = savedItems.indexOf(itemToRemove);
+								savedItems.splice(index, 1);
+								localStorage['collection'] = savedItems;
+								$(this).parent().remove();
+							});							
+			
+			var metBt = $('<a href="http://www.metmuseum.org/collection/the-collection-online/search/'+$(this).attr('name')+'" class="met-bt" target="_blank">More</a>')
+							.css({
+								top: $(parentDiv).offset().top + 16,
+								left: $(parentDiv).offset().left + 15
+							});
+
+			$(this).prepend(closeBt)
+				   .prepend(metBt);
+
+		});
+		$('.collection-bt').off('mouseleave').on('mouseleave', function(e){
+			$(this).find('.remove-bt, .met-bt').remove();
+		});
 
 		$('#map-bt').off('click').on('click', function(){
 
