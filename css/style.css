@@ -430,19 +430,78 @@ div#embed_map_here{
 	div#container hr.page-counter{
 		height: calc(30vh - 100px);
 	}	
-
 }
 
 /* MOBILE */
 @media screen and (max-width: 750px) {
-	/* div#container .item {
-		margin: 5px;
-		width: calc(50% - 10px);
-	}*/
-	div#container hr.page-counter,
+	div#logo{
+		position: absolute;
+		top: calc(50% - 180px);
+		left: calc(50% - 100px);
+		width: 200px;
+	}
+		div#logo img{
+			width: 100px;
+		}	
+
+		div#logo #title{
+			font-size: 20px;
+			border-width: 2px;
+		}
+
+		div#logo #tagline{
+			font-size: 13px;
+		}
+
+		div#logo a{
+			padding: 5px;
+			font-size: 11px;
+			min-width: 60px;
+			border-radius: 5px;
+		}
+
+	nav{
+		display: static;
+		width: 100%;
+		height: auto;
+		text-align: center;
+		padding: 0;
+		margin: 0;
+		border: 0;
+		background: rgb(150, 138, 111);
+		font-family: Georgia,"Times New Roman"
+	}
+		nav #home{
+			display: block;
+			float: none;
+			margin: auto;	
+		}
+
+		nav #about,
+		nav #my-collection,
+		nav #gallery-bt{
+			display: inline-block;
+			float: none;
+			margin: 0;
+			font-size: 11px;
+			height: auto;
+			line-height: 30px;
+		}
+		nav #gallery-bt img{
+			float: left;
+			margin-top: 6px;
+			width: 16px;
+			height: 16px;
+		}		
+
+	/*
 	div#container .item img{
 		height: calc(30vh - 100px);
-	}	
+	}
+
+	div#container hr.page-counter{
+		height: calc(30vh - 100px);
+	}*/	
 }
 
 /*----------------- PRINT -----------------*/
